@@ -378,7 +378,7 @@ n.psFits <- length(x$psList)
 	esDat$ksPVal[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsed, collapsedUnw)
 	esDat$ksRank[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(collRanks, 2)
 	}
-	}
+	} 
 
 
    	
