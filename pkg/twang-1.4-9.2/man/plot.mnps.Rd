@@ -8,7 +8,7 @@
 \usage{ 
 \method{plot}{mnps}(x, plots = "optimize", 
 	pairwiseMax = TRUE, figureRows = NULL,  
-	color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL)
+	color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, \dots)
 }
 
 \arguments{
@@ -44,6 +44,7 @@
 	specified, a comparison for that single pair is produced.}
 \item{singlePlot}{For plot calls that produce multiple plots, specifying an integer value of \code{singlePlot} will 
 	return only the corresponding plot.  E.g., specifying \code{singlePlot = 2} will return the second plot.}
+\item{\dots}{Additional arguments.}
 }
 
 

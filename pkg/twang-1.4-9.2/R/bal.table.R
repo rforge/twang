@@ -58,7 +58,10 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
 
    	if(collapse.to == "pair") {
    		if(!is.null(subset.var)) balTabList <- subset(balTabList, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))
-   		if(!is.null(subset.treat)) balTabList <- subset(balTabList, tmt1 %in% subset.treat | tmt2 %in% subset.treat)
+   		if(!is.null(subset.treat)) {
+   			if(x$estimand == "ATE") balTabList <- subset(balTabList, tmt1 %in% subset.treat | tmt2 %in% subset.treat)
+   			else balTabList <- subset(control %in% subset.treat)
+   			}
    		if(!is.null(subset.stop.method)) balTabList <- subset(balTabList, stop.method %in% subset.stop.method)
    		balTabList <- subset(balTabList, abs(std.eff.sz) >= es.cutoff)
    		balTabList <- subset(balTabList, ks >= ks.cutoff)
