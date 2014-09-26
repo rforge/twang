@@ -691,7 +691,6 @@ plot(mnps.AOD, plots = 4, pairwiseMax = FALSE)
 nVar
 n.var2
 plotTab
-plotTab
 debug(twang:::plot.mnps)
 detach("package:twang", unload = TRUE)
 require(twang)
@@ -723,4 +722,5 @@ plot(mnps.AOD, plots = 5, pairwiseMax = FALSE)
 detach("package:twang", unload = TRUE)
 require(twang)
 plot(mnps.AOD, plots = 5, pairwiseMax = FALSE)
+q()
 q()

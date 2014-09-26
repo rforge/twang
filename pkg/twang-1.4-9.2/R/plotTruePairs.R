@@ -6,7 +6,7 @@ plotTruePairs <- function(x, subset = NULL, color = TRUE, ...){
 	ptSymCol <- ifelse(color, "#0080ff", "black")
 	
 	
-	pairs <- twang:::pairwiseComparison(x)
+	pairs <- pairwiseComparison(x)
 	stp <- x$stopMethods
 	unwTab <- subset(pairs, stop.method == "unw")
 	hdUnwTab <- unwTab

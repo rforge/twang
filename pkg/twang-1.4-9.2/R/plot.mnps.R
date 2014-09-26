@@ -1,5 +1,5 @@
 ##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATT", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
-plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL){   
+plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, ...){   
 
    	if(is.null(subset)) subset <- 1:length(x$stopMethods) 
       
@@ -18,7 +18,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if(plots == 2 | plots == "boxplot"){
    	
-   	boxplot(x, color = color, stop.method = subset, singlePlot)
+   	boxplot(x, color = color, stop.method = subset)
    	
    }
    
@@ -146,7 +146,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    			pt1.1 <- xyplot(std.eff.sz ~ weighted | stopMeth, groups = whichVar, data = esDatTmp, 
    				scales = list(alternating = 1), ylim = c(-.05, yMax), type = "l", col = ltBl, 
    				as.table = TRUE, subset = subsetHold, par.settings = list(strip.background = list(col=stripBgCol)),
-   				ylab = "Absolute standard difference", xlab = NULL, ...,
+   				ylab = "Absolute standard difference", xlab = NULL, 
    				main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
    				panel = function(...){
    					panel.abline(h=c(.2,.5,.8), col="gray80")
@@ -315,7 +315,6 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, color = color, subset=subset)
    }
 
-#pt1 <- twang:::diag.plot(x, plots, subset = subset, ...)
 
 if(is.null(figureRows)){
 	figureRows <- 1

@@ -41,8 +41,6 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = 1, co
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset, ...)
    }
 
-#pt1 <- twang:::diag.plot(x, plots, subset = subset, ...)
-
 
 figCol <- ceiling(nPlot/figureRows)
 

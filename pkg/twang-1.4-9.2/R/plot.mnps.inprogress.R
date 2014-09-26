@@ -208,8 +208,6 @@ plot.mnps.inprogress <- function(x,plots="optimize", pairwiseMax = TRUE, figureR
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset, ...)
    }
 
-#pt1 <- twang:::diag.plot(x, plots, subset = subset, ...)
-
 if(is.null(figureRows)){
 	figureRows <- 1
 	if(nPlot > 2 & nPlot <= 6) figureRows <- 2
