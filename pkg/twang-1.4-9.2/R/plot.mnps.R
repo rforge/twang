@@ -18,7 +18,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if(plots == 2 | plots == "boxplot"){
    	
-   	boxplot(x, color = color, stop.method = subset, ...)
+   	boxplot(x, color = color, stop.method = subset, singlePlot)
    	
    }
    
