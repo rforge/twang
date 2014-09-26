@@ -165,7 +165,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    			main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
    			data = esDatTmp, ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE, 
    			ylim = c(-.05, yMax), type = "l", col = rdCol, par.settings = list(strip.background = list(col=stripBgCol)),
-   			lwd = 2, ...)
+   			lwd = 2)
    			if(nullPlot){
    				ptHold <- pt1.2
    				nullPlot <- FALSE
@@ -185,7 +185,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    			ylab = "Absolute standard difference", xlab = NULL, 
    			ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,
    			main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
-   			subset = subsetHold, par.settings = list(strip.background = list(col=stripBgCol)), ...)
+   			subset = subsetHold, par.settings = list(strip.background = list(col=stripBgCol)))
    		ptHold <- ptHold + pt2
    	
    		pt1 <- ptHold
@@ -222,7 +222,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	pt1 <- xyplot(p~tRank|stopMeth, groups = weighted, data=plotTab, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
    	main = paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = ""),
-   	ylim = c(-.1, 1.1), ..., 
+   	ylim = c(-.1, 1.1), 
    	   	panel = function(...){
    	   		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
 #   		panel.abline(a=0, b=1, col="lightblue")
@@ -260,7 +260,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	pt1 <- xyplot(ks.pval~ksRank|stopMeth, groups = weighted, data=plotTab, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
    	main = paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = ""),
-   	ylim = c(-.1, 1.1), ..., 
+   	ylim = c(-.1, 1.1),
    	   	panel = function(...){
    	   		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
 #   		panel.abline(a=0, b=1, col="lightblue")
@@ -312,7 +312,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    for(i in 1:nPlot){
    	if(x$estimand == "ATT") ptNm <- paste("Balance for", x$levExceptTreatATT[i], "versus unweighted", x$treatATT)
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
-   	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset, ...)
+   	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, color = color, subset=subset)
    }
 
 #pt1 <- twang:::diag.plot(x, plots, subset = subset, ...)
@@ -408,7 +408,7 @@ n.psFits <- length(x$psList)
    		pt1.2 <- xyplot(effectSize ~ weighted | whichComp, groups = whichVar, 
    			data = esDatTmp, ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE,
    			ylim = c(-.05, yMax), type = "l", col = rdCol, par.settings = list(strip.background = list(col=stripBgCol)),
-   			lwd = 2, ...)
+   			lwd = 2)
    		if(!nullPlot){
    			currPt <- currPt + pt1.2
    		}
@@ -425,8 +425,7 @@ n.psFits <- length(x$psList)
    	
    	pt2 <- xyplot(effectSize ~ weighted | whichComp, groups = (pVal < 0.05), data = esDat,
    	ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE, 
-   	ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,par.settings = list(strip.background = list(col=stripBgCol)),
-   	...)
+   	ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,par.settings = list(strip.background = list(col=stripBgCol)))
    	if(!nullPlot) currPt <- currPt + pt2
    	else currPt <- pt2
    	
@@ -463,7 +462,7 @@ n.psFits <- length(x$psList)
    	
    	pt1 <- xyplot(tPVal~tRank|whichComp, groups = weighted, data=esDat, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values \n (pairwise minimum)", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
    	#subst = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subst]) & (esDat$tRank <= n.var2), 
-   	ylim = c(-.1, 1.1), ..., 
+   	ylim = c(-.1, 1.1), 
    	   	panel = function(...){
    	   		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
 #   		panel.abline(a=0, b=1, col="lightblue")
@@ -504,7 +503,8 @@ n.psFits <- length(x$psList)
    	
    	n.var2 <- max(esDat$ksRank*(!is.na(esDat$ksPVal)), na.rm=TRUE)
    	
-   	pt1 <- xyplot(ksPVal~ksRank|whichComp, groups=weighted, scales = list(alternating = 1), data = esDat,ylim = c(-.1, 1.1), ..., xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col="black",par.settings = list(strip.background = list(col=stripBgCol)),
+   	pt1 <- xyplot(ksPVal~ksRank|whichComp, groups=weighted, scales = list(alternating = 1), data = esDat,ylim = c(-.1, 1.1),
+   	 xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col="black",par.settings = list(strip.background = list(col=stripBgCol)),
    	subst = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subst]) & (esDat$ksRank <= n.var2),
    	panel = function(...){
    		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
