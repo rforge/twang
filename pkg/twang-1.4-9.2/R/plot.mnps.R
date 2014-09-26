@@ -276,6 +276,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}	
 	
 	if(nPlotsTot == 1) return(pt1)
+	else if(!is.null(singlePlot)) return(ptList[[singlePlot]])
 	else {	
 		if(is.null(figureRows)){
 			figureRows <- 1
