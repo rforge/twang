@@ -1,4 +1,4 @@
-boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, ...){
+boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, singlePlot = NULL, multiPage = FALSE, ...){
 	
 	ptSymCol <- ifelse(color, "#0080ff", "black")	
 	bwCols <- list(col = ptSymCol)
@@ -35,8 +35,11 @@ boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, ...){
 		pt1 <- bwplot(ps ~ treat, groups = whichResp, #layout = c(1,x$nFits), 
 		xlab = "Treatment", ylab = "Propensity scores", ylim = c(-.1,1.1), data = bwDat, main = paste(x$treatLev[j], " propensity scores by Tx group"),par.settings = list(strip.background = list(col=stripBgCol), box.rectangle = bwCols, plot.symbol = bwCols, box.umbrella = bwCols), ...)
 
-
-		print(pt1, split = c(1,j,1,x$nFits), more = (j < x$nFits))
+		if(multiPage) print(pt1)
+		else if(!is.null(singlePlot)){
+			if(singlePlot == j) return(pt1)
+			}		
+		else print(pt1, split = c(1,j,1,x$nFits), more = (j < x$nFits))
 
 		}
 		}
@@ -53,7 +56,12 @@ boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, ...){
 			currCats <- c(x$treatATT, x$levExceptTreatATT[j])
 			bwDat <- data.frame(ps = x$psList[[j]]$ps[,stopMethLong], treat = currCats[1 + x$psList[[j]]$data$currResp], respCat = x$levExceptTreatATT[j], attGrp = x$treatATT)
 			pt1 <- bwplot(ps ~ treat, data = bwDat, ylim = c(-.1,1.1), ylab = "Propensity scores", xlab = "Treatment", main = paste("Propensity score of ", x$levExceptTreatATT[j], " versus ", x$treatATT, ".", sep = ""),par.settings = list(strip.background = list(col=stripBgCol), box.rectangle = bwCols, plot.symbol = bwCols, box.umbrella = bwCols), ...)
-			print(pt1, split = c(1,j,1,x$nFits), more = (j < x$nFits))
+	
+		if(multiPage) print(pt1)
+		else if(!is.null(singlePlot)){
+			if(singlePlot == j) return(pt1)
+		}				
+		else print(pt1, split = c(1,j,1,x$nFits), more = (j < x$nFits))
 			
 		}		
 	}	

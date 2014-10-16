@@ -1,7 +1,17 @@
 ##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATT", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
-plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, ...){   
+plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, ...){   
 
    	if(is.null(subset)) subset <- 1:length(x$stopMethods) 
+   	
+   	if(length(treatments) > 2 & x$estimand == "ATE") stop("The \"treatments\" argument must be null or have length 1 or 2.")   	
+   	
+   	if((length(treatments) > 1) & x$estimand == "ATT"){
+   		warning("treatments argument must be null or have length 1 when estimand = ATT")
+   	}
+   	
+   	if(pairwiseMax & !is.null(treatments)){
+   		warning("treatments argument is ignored when pairwiseMax = TRUE.")
+   	}
       
    	ltBl <- ifelse(color, "lightblue","gray80")
 	rdCol <- ifelse(color, "red","black")
@@ -18,7 +28,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if(plots == 2 | plots == "boxplot"){
    	
-   	boxplot(x, color = color, stop.method = subset)
+   	boxplot(x, color = color, stop.method = subset, multiPage = multiPage, singlePlot = singlePlot, ...)
    	
    }
    
@@ -31,6 +41,9 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset)
    	}
    	if(!is.null(singlePlot)) print(ptHld[[singlePlot]])
+   	else if(multiPage){
+   		for(i in 1:nPlot) print(ptHld[[i]])
+   	}
    	else{
 		if(is.null(figureRows)){
 			figureRows <- 1 
@@ -107,7 +120,6 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}
    	
    	allDat <- plotTab
-   	if(length(treatments) > 2) stop("The \"treatments\" argument must be null or have length 1 or 2.")
    	if(!is.null(treatments) & !(all(treatments %in% x$treatLev))) {
    		print(x$treatLev)
    		stop("All elements of the \"treatments\" argument must be levels of the treatment variable, as printed above.")
@@ -277,6 +289,9 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
 	
 	if(nPlotsTot == 1) return(pt1)
 	else if(!is.null(singlePlot)) return(ptList[[singlePlot]])
+	else if(multiPage){
+		for(i in 1:nPlot) print(ptList[[i]])
+	}
 	else {	
 		if(is.null(figureRows)){
 			figureRows <- 1
@@ -314,13 +329,22 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, color = color, subset=subset)
    }
-
-
-if(is.null(figureRows)){
-	figureRows <- 1
+   
+   if(multiPage){
+   	for(i in 1:nPlot) print(ptHld[[i]])
+   }
+   else if(!is.null(singlePlot)) return(ptHld[[singlePlot]])
+   else if(!is.null(treatments)){
+   	ptNum <- 1:nPlot[x$levExceptTreatAtt == treatments]
+   	return(ptHld[[ptNum]])
+   	
+   }
+   else{
+   if(is.null(figureRows)){
+   	figureRows <- 1
 	if(nPlot > 2 & nPlot <= 6) figureRows <- 2
 	if(nPlot > 6) figureRows <- 3
-}
+   }
 
 figCol <- ceiling(nPlot/figureRows)
 
@@ -342,13 +366,12 @@ for(i in 1:(nPlot-1)){
 print(ptHld[[nPlot]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = FALSE)
 }
 }
+}
 
-else{  ## if pairwiseMax and plots == something other than optimize
-
-n.tp <- length(x$psList[[1]]$desc)
-n.psFits <- length(x$psList)
+   else{  ## if pairwiseMax and plots == something other than optimize
    	
-#   	return(esDat)   
+   	n.tp <- length(x$psList[[1]]$desc)
+   	n.psFits <- length(x$psList)
    	
    if (plots == "es" || plots == 3)	{ ## es plot
    	
@@ -430,9 +453,7 @@ n.psFits <- length(x$psList)
    	
    	return(currPt)
    	
-   	}
-   						
- 			
+   	} 			
    
    if (plots == "t" || plots == 4) { ## t p-values plot
 

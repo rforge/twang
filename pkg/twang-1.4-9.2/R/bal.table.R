@@ -7,26 +7,33 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    else {
    	if(x$estimand == "ATE"){
    		pwc <- pairwiseComparison(x, collapse.to = collapse.to)
-   		hldNum <- NULL
-   		for(i in 1:length(pwc[1,])) hldNum <- c(hldNum, is.numeric(pwc[1,i]))
-   		pwc[,hldNum] <- round(pwc[,hldNum], digits = digits)
-   		if(collapse.to != "pair") return(pwc)
-   		if(!is.null(subset.var)) pwc <- subset(pwc, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))
+   		if(!is.null(subset.var) & !(collapse.to == "pair")) pwc <- subset(pwc, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))
    		if(!is.null(subset.treat)){ 
    			if(length(subset.treat) == 1) pwc <- subset(pwc, tmt1 == subset.treat | tmt2 == subset.treat)
    			if(length(subset.treat) > 1) pwc <- subset(pwc, tmt1 %in% subset.treat & tmt2 %in% subset.treat)   
    		}
    		if(!is.null(subset.stop.method)) pwc <- subset(pwc, stop.method %in% subset.stop.method)
-   		pwc <- subset(pwc, abs(std.eff.sz) >= es.cutoff)
-   		pwc <- subset(pwc, ks >= ks.cutoff)
-   		pwc <- subset(pwc, p <= p.cutoff)
-   		pwc <- subset(pwc, ks.pval <= ks.p.cutoff)   		
+   		if(collapse.to == "pair"){
+   			pwc <- subset(pwc, abs(std.eff.sz) >= es.cutoff)
+   			pwc <- subset(pwc, ks >= ks.cutoff)
+   			pwc <- subset(pwc, p <= p.cutoff)
+   			pwc <- subset(pwc, ks.pval <= ks.p.cutoff)   
+   		}
+   		else {
+   			pwc <- subset(pwc, abs(max.std.eff.sz) >= es.cutoff)
+   			pwc <- subset(pwc, max.ks >= ks.cutoff)
+   			pwc <- subset(pwc, min.p <= p.cutoff)
+   			pwc <- subset(pwc, min.ks.pval <= ks.p.cutoff)   
+   		}
+   		hldNum <- NULL
+   		for(i in 1:length(pwc[1,])) hldNum <- c(hldNum, is.numeric(pwc[1,i]))
+   		pwc[,hldNum] <- round(pwc[,hldNum], digits = digits)		
    		return(pwc)
    		}
    	nFits <- x$nFits
    	balTabList <- vector(mode = "list", length = nFits)
    	#if(x$estimand == "ATT")
-   	if(collapse.to == "pair") cat(paste("Note that `tx` refers to the category specified as the treatATT, ", x$treatATT, ".\n\n", sep = ""))
+   	if(collapse.to == "pair") cat(paste("Note that `tx' refers to the category specified as the treatATT, ", x$treatATT, ".\n\n", sep = ""))
    	for(i in 1:nFits) balTabList[[i]] <- bal.table(x$psList[[i]], digits = digits)
    	#if(x$estimand == "ATT") 
    	names(balTabList) <- x$levExceptTreatATT
@@ -34,9 +41,7 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    		for(j in 1:length(balTabList[[i]])){
    			balTabList[[i]][[j]] <- data.frame(var = row.names(balTabList[[i]][[j]]), balTabList[[i]][[j]], control = names(balTabList)[i], stop.method = names(balTabList[[i]])[j])
    		}
-#   		balTabList[[i]] <- do.call(rbind, balTabList[[i]])
    	}
-#   	balTabList <- do.call(rbind, balTabList)
    	
    	nonTreatATT <- x$levExceptTreatATT
    	newBalTabList <- vector(mode = "list", length = (length(x$stopMethods) + 1) * length(nonTreatATT))
@@ -67,6 +72,9 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    		balTabList <- subset(balTabList, ks >= ks.cutoff)
    		balTabList <- subset(balTabList, p <= p.cutoff)
    		balTabList <- subset(balTabList, ks.pval <= ks.p.cutoff)
+   		hldNum <- NULL
+   		for(i in 1:length(balTabList[1,])) hldNum <- c(hldNum, is.numeric(balTabList[1,i]))
+   		balTabList[,hldNum] <- round(balTabList[,hldNum], digits = digits)	   		
    		return(balTabList)
    		}
    	if(collapse.to == "covariate") {
@@ -78,7 +86,13 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    			colCov$max.ks[i] <- with(subset(balTabList, var == colCov$var[i] & stop.method == colCov$stop.method[i]), max(ks, ...))
    			colCov$min.ks.pval[i] <- with(subset(balTabList, var == colCov$var[i] & stop.method == colCov$stop.method[i]), min(ks.pval, ...))
    		}
-   		
+   		colCov <- subset(colCov, abs(max.std.eff.sz) >= es.cutoff)
+   		colCov <- subset(colCov, max.ks >= ks.cutoff)
+   		colCov <- subset(colCov, min.p <= p.cutoff)
+   		colCov <- subset(colCov, min.ks.pval <= ks.p.cutoff)   
+   		hldNum <- NULL
+   		for(i in 1:length(colCov[1,])) hldNum <- c(hldNum, is.numeric(colCov[1,i]))
+   		colCov[,hldNum] <- round(colCov[,hldNum], digits = digits)	   		   		
    		return(colCov)
    	}
    	if(collapse.to == "stop.method"){
@@ -89,6 +103,13 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    			colStop$max.ks[i] <- with(subset(balTabList, stop.method == colStop$stop.method[i]), max(ks, ...))
    			colStop$min.ks.pval[i] <- with(subset(balTabList, stop.method == colStop$stop.method[i]), min(ks.pval, ...))
    		}
+   		colStop <- subset(colStop, abs(max.std.eff.sz) >= es.cutoff)
+   		colStop <- subset(colStop, max.ks >= ks.cutoff)
+   		colStop <- subset(colStop, min.p <= p.cutoff)
+   		colStop <- subset(colStop, min.ks.pval <= ks.p.cutoff)     	
+   		hldNum <- NULL
+   		for(i in 1:length(colStop[1,])) hldNum <- c(hldNum, is.numeric(colStop[1,i]))
+   		colStop[,hldNum] <- round(colStop[,hldNum], digits = digits)	 	
    		return(colStop)
    	}
    }

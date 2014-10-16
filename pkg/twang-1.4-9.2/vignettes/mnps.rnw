@@ -199,7 +199,7 @@ to 3,000 for this example (10,000 iterations
 is the default).
 
 \begin{center}
-<<fig=TRUE, echo=TRUE, include = TRUE, height = 4.5, width = 10.5>>= 
+<<fig=TRUE, echo=TRUE, include = TRUE, height = 7, width = 10.5>>= 
     plot(mnps.AOD, plots = 1)
 @
 \end{center}
@@ -328,14 +328,32 @@ all other treatment groups.
 
 \end{center}
 
-
-
 <<echo=FALSE>>=
 options(width=60)
 @
 
 As seen in this figure, the pairwise minimum $p$-values all increase
 after propensity score weighting.
+
+Some of the figures include many frames, which can result in figures
+that are too big or difficult to read for some methods of display. To
+control this, three controls are available. First, the
+\texttt{treatments} argument can be used to specify only comparisons
+that involve a specific treatment level or, in the ATE case, only
+comparisons between two specified treatment levels. Similarly, the
+\texttt{singlePlot} argument . For example, \texttt{singlePlot = 2}
+would display only the second frame of those produced by the plot
+command (see figure below). Finally, specifying \texttt{multiPage = TRUE} prints the
+frames in succession.  If this option is used after specifying a file
+to plot to (e.g., using \texttt{pdf()}), the frames will be printed on
+separate pages.
+
+  \begin{center}
+<<fig=TRUE, echo=TRUE, include = TRUE, height = 5, width = 7>>= 
+    plot(mnps.AOD, plots = 2, subset = "es.mean", singlePlot = 2)
+@
+
+\end{center}
 
 \subsection{Tabular assessments of balance}
 
@@ -391,7 +409,43 @@ bal.table(mnps.AOD, collapse.to = 'stop.method', digits = 4)
 @ 
 
 Here we quickly see how the maximum ASMDs and minimum $p$-values have
-all moved in the desired direction after propensity score weighting.  
+all moved in the desired direction after propensity score
+weighting. 
+
+Rather than collapsing the values of the table as described
+above, there are also several options for subsetting the \texttt{bal.table}
+output. The arguments
+\texttt{subset.var} and \texttt{subset.stop.method} instruct the
+function to include only the 
+covariates indicated, and stop.method results indicated, respectively. The
+\texttt{subset.treat} instructs the function to return only the
+pairwise comparisons including the specified treatment or, if two
+treatment levels are indicated, the pair-wise comparisons that include
+those two treatments.  Note that \texttt{subset.treat} may not be
+used when \texttt{collapse.to} is specified as \texttt{'stop.method'}
+or \texttt{'covariate'}. Further, the table may be subset on the basis
+of ES and KS and the related $p$-values via the \texttt{es.cutoff},
+\texttt{ks.cutoff}, \texttt{p.cutoff}, and \texttt{ks.p.cutoff}
+arguments.  These cutoffs exclude rows that are well-balanced as
+measured by the corresponding . For example \texttt{p.cutoff = 0.1}
+would exclude rows with $p$-values greater than 10\%, and
+\texttt{es.cutoff = 0.2} excludes rows with ES values below 0.2 in
+absolute value. Examples of the use of these
+subsetting arguments are given below.
+
+<<>>=
+bal.table(mnps.AOD, subset.treat = c('community', 'metcbt5'), 
+          subset.var = c('white', 'illact', 'crimjust'))
+@ 
+
+<<>>=
+bal.table(mnps.AOD, subset.stop.method = 'es.mean', collapse.to = 'covariate')
+@ 
+
+<<>>= 
+bal.table(mnps.AOD, es.cutoff = 0.1)
+@ 
+
 
 Finally, there is also \texttt{summary} method for the \texttt{mnps}
 objects which gives the collapsed version of \texttt{bal.table()} as
