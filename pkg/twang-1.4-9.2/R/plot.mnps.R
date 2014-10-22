@@ -5,12 +5,19 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	if(length(treatments) > 2 & x$estimand == "ATE") stop("The \"treatments\" argument must be null or have length 1 or 2.")   	
    	
+   	if(pairwiseMax & !is.null(singlePlot)) warning("The \"singlePlot\" argument is ignored when pairwiseMax = TRUE.")
+   	
    	if((length(treatments) > 1) & x$estimand == "ATT"){
    		warning("treatments argument must be null or have length 1 when estimand = ATT")
    	}
    	
    	if(pairwiseMax & !is.null(treatments)){
    		warning("treatments argument is ignored when pairwiseMax = TRUE.")
+   	}
+   	
+   	if(!is.null(singlePlot)){
+   		if(!is.numeric(singlePlot)) stop("If specified, the \"singlePlot\" argument must be a positive integer.")
+   		if(round(singlePlot) != singlePlot | singlePlot <= 0) stop("If specified, the \"singlePlot\" argument must be a positive integer.")
    	}
       
    	ltBl <- ifelse(color, "lightblue","gray80")
@@ -40,9 +47,12 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset)
    	}
-   	if(!is.null(singlePlot)) print(ptHld[[singlePlot]])
+   	if(!is.null(singlePlot)) {
+   		if(singlePlot > length(ptHld)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptHld), " for this object."))
+   		print(ptHld[[singlePlot]])
+   		}
    	else if(multiPage){
-   		for(i in 1:nPlot) print(ptHld[[i]])
+   		for(i in 1:length(ptHld)) print(ptHld[[i]])
    	}
    	else{
 		if(is.null(figureRows)){
@@ -288,9 +298,12 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}	
 	
 	if(nPlotsTot == 1) return(pt1)
-	else if(!is.null(singlePlot)) return(ptList[[singlePlot]])
+	else if(!is.null(singlePlot)) {
+		 if(singlePlot > length(ptList)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptList), " for this object."))
+		return(ptList[[singlePlot]])
+		}
 	else if(multiPage){
-		for(i in 1:nPlot) print(ptList[[i]])
+		for(i in 1:length(ptList)) print(ptList[[i]])
 	}
 	else {	
 		if(is.null(figureRows)){
@@ -331,9 +344,12 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    }
    
    if(multiPage){
-   	for(i in 1:nPlot) print(ptHld[[i]])
+   	for(i in 1:length(ptHld)) print(ptHld[[i]])
    }
-   else if(!is.null(singlePlot)) return(ptHld[[singlePlot]])
+   else if(!is.null(singlePlot)) {
+   	if(singlePlot > length(ptHld)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptHld), " for this object."))
+   	return(ptHld[[singlePlot]])
+   	}
    else if(!is.null(treatments)){
    	ptNum <- 1:nPlot[x$levExceptTreatAtt == treatments]
    	return(ptHld[[ptNum]])

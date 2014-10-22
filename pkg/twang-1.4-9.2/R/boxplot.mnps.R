@@ -6,6 +6,11 @@ boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, singlePlot = NULL,
 	
 	if(is.null(stop.method)) stop.method <- x$stopMethods
 	
+	if(!is.null(singlePlot)){
+		if(!is.numeric(singlePlot) | singlePlot > x$nFits) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and", x$nFits, "for this object."))
+		if(round(singlePlot) != singlePlot) stop("If specified, the \"singlePlot\" argument must be a positive integer.")
+	}
+	
 	if(length(stop.method) > 1){ 
 		if(is.numeric(stop.method))
 		warning("Using only the first stop.method, ",  x$stopMethods[1])
@@ -24,6 +29,8 @@ boxplot.mnps <- function(x, stop.method = NULL, color = TRUE, singlePlot = NULL,
 			bwDat <- whichResp <- NULL
 			
 			stopMethLong <- paste(stop.method, ".ATE", sep = "")
+			
+			
 			
 		for(j in 1:x$nFits){
 #			bwDat <- rbind(bwDat, data.frame(ps = x$psList[[j]]$ps[,currStopMeth], treat = x$treatVar, whichResp = x$respLev[j]))
