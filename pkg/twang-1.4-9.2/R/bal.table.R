@@ -7,7 +7,7 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    else {
    	if(x$estimand == "ATE"){
    		pwc <- pairwiseComparison(x, collapse.to = collapse.to)
-   		if(!is.null(subset.var) & !(collapse.to == "pair")) pwc <- subset(pwc, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))
+   		if(!is.null(subset.var) & !(collapse.to == "stop.method")) pwc <- subset(pwc, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))
    		if(!is.null(subset.treat)){ 
    			if(length(subset.treat) == 1) pwc <- subset(pwc, tmt1 == subset.treat | tmt2 == subset.treat)
    			if(length(subset.treat) > 1) pwc <- subset(pwc, tmt1 %in% subset.treat & tmt2 %in% subset.treat)   

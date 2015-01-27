@@ -1,11 +1,24 @@
-##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATT", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
+##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATE", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
 plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, ...){   
 
-   	if(is.null(subset)) subset <- 1:length(x$stopMethods) 
+	if(!is.numeric(subset) & !is.null(subset)){
+		if(!all(subset %in% x$stopMethods)) stop("The \"subset\" arugment must be NULL, numeric, or one of the stop.methods specified when fitting the mnps object.")
+	}
+   	if(is.null(subset)) subset <- 1:length(x$stopMethods)
+   	if(!is.numeric(subset)){
+   		hldLen <- 1:length(x$stopMethods)
+   		subset <- hldLen[x$stopMethods %in% subset]
+   	}
+   	
+   	subset <- sort(subset)
+   	
+   	if(is.null(subset)) stop("The \"subset\" arugment must either be NULL, numeric, or some subset of", print(x$stopMethods)) 
    	
    	if(length(treatments) > 2 & x$estimand == "ATE") stop("The \"treatments\" argument must be null or have length 1 or 2.")   	
    	
-   	if(pairwiseMax & !is.null(singlePlot)) warning("The \"singlePlot\" argument is ignored when pairwiseMax = TRUE.")
+   	if(plots == 3 | plots == 4 | plots == 5 | plots == "es" | plots == "t" | plots == "ks"){
+	   	if(pairwiseMax & !is.null(singlePlot)) warning("For this figure \"singlePlot\" argument is ignored when pairwiseMax = TRUE.")
+	   	}
    	
    	if((length(treatments) > 1) & x$estimand == "ATT"){
    		warning("treatments argument must be null or have length 1 when estimand = ATT")
@@ -13,11 +26,6 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	if(pairwiseMax & !is.null(treatments)){
    		warning("treatments argument is ignored when pairwiseMax = TRUE.")
-   	}
-   	
-   	if(!is.null(singlePlot)){
-   		if(!is.numeric(singlePlot)) stop("If specified, the \"singlePlot\" argument must be a positive integer.")
-   		if(round(singlePlot) != singlePlot | singlePlot <= 0) stop("If specified, the \"singlePlot\" argument must be a positive integer.")
    	}
       
    	ltBl <- ifelse(color, "lightblue","gray80")
@@ -41,48 +49,15 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    else if(plots == "optimize" | plots == 1){
    nPlot <- x$nFits
+   
    ptHld <- vector(mode = "list", length = nPlot)
    for(i in 1:nPlot){
    	if(x$estimand == "ATT") ptNm <- paste("Balance for", x$levExceptTreatATT[i], "versus unweighted", x$treatATT)
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset)
    	}
-   	if(!is.null(singlePlot)) {
-   		if(singlePlot > length(ptHld)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptHld), " for this object."))
-   		print(ptHld[[singlePlot]])
-   		}
-   	else if(multiPage){
-   		for(i in 1:length(ptHld)) print(ptHld[[i]])
-   	}
-   	else{
-		if(is.null(figureRows)){
-			figureRows <- 1 
-			if(nPlot > 2 & nPlot <= 6) figureRows <- 2
-			if(nPlot > 6) figureRows <- 3
-		}
-
-		figCol <- ceiling(nPlot/figureRows)
-
-		if(dev.cur() == 1) dev.new()
-
-		curCol <- curRow <- 1
-
-		for(i in 1:(nPlot-1)){
-			print(ptHld[[i]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = TRUE)
-			if(curCol < figCol){
-				curCol <- curCol + 1
-			}
-			else {
-				curCol <- 1
-				curRow <- curRow + 1
-			}
-		}
-
-		print(ptHld[[nPlot]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = FALSE)
-   		
-   		}
    
-	
+	displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)
    	
    }
    
@@ -111,14 +86,17 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
 	
 	plotTab$weighted <- factor(rep(c("Unweighted","Weighted"), each = (nrow(plotTab)/2)))
 	
+	plotTab <- subset(plotTab, as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset])
+	
+	
 	if(plots == 3 | plots == "es"){
 	
 	plotTab$bigger <- rep(as.numeric(wghtTab$std.eff.sz > unwTab$std.eff.sz),2)
 	
 	plotTab$sig <- as.numeric(plotTab$p < 0.05)
 	
-   	if(is.null(subset))
-   	subset <- 1:length(levels(as.factor(esDat$whichComp)))
+#   	if(is.null(subset))
+#   	subset <- 1:length(levels(as.factor(esDat$whichComp)))
    	
    	yMax <- min(3,max(plotTab$std.eff.sz, na.rm=TRUE)) + .05	
 	
@@ -160,7 +138,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	for(i in 1:nPlotsTot){
    		if(nPlotsTot > 1) plotTab <- subset(superPlotTab, tmt1 %in% ptNames[[i]] & tmt2 %in% ptNames[[i]])
-	   	subsetHold <- ! plotTab$bigger & (as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset])
+	   	subsetHold <- ! plotTab$bigger 
    	
    		if(any(subsetHold)){   	
    			esDatTmp <- plotTab
@@ -179,6 +157,8 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		}
    	
 	   	subsetHold <- plotTab$bigger & (as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset])
+#	   	subsetHold <- plotTab$bigger & (as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset])
+
    	
 	   	if(any(subsetHold)){
    		   	esDatTmp <- plotTab
@@ -197,7 +177,8 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    				}
    		}
    	
-	   	subsetHold <- as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset]
+#	   	subsetHold <- as.factor(plotTab$stopMeth) %in% levels(as.factor(plotTab$stopMeth))[subset]
+
    	
    		if(all(plotTab$p < 0.05, na.rm=TRUE)) pchHold <- 19
    		else if(all(plotTab$p >= 0.05, na.rm=TRUE)) pchHold <- 1
@@ -207,7 +188,8 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    			ylab = "Absolute standard difference", xlab = NULL, 
    			ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,
    			main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
-   			subset = subsetHold, par.settings = list(strip.background = list(col=stripBgCol)))
+   			#subset = subsetHold, 
+   			par.settings = list(strip.background = list(col=stripBgCol)))
    		ptHold <- ptHold + pt2
    	
    		pt1 <- ptHold
@@ -298,38 +280,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}	
 	
 	if(nPlotsTot == 1) return(pt1)
-	else if(!is.null(singlePlot)) {
-		 if(singlePlot > length(ptList)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptList), " for this object."))
-		return(ptList[[singlePlot]])
-		}
-	else if(multiPage){
-		for(i in 1:length(ptList)) print(ptList[[i]])
-	}
-	else {	
-		if(is.null(figureRows)){
-			figureRows <- 1
-			if(nPlotsTot > 2 & nPlotsTot <= 6) figureRows <- 2
-			if(nPlotsTot > 6) figureRows <- 3
-		}
-		figCol <- ceiling(nPlotsTot/figureRows)
-
-		if(dev.cur() == 1) dev.new()
-
-		curCol <- curRow <- 1
-
-		for(i in 1:(nPlotsTot-1)){
-			print(ptList[[i]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = TRUE)
-			if(curCol < figCol) curCol <- curCol + 1
-			else {
-				curCol <- 1
-				curRow <- curRow + 1
-			}
-		}
-
-		print(ptList[[nPlotsTot]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = FALSE)
-	
-	}	
-	
+	else displayPlots(ptList, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)	
 	
 
    		
@@ -343,44 +294,13 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, color = color, subset=subset)
    }
    
-   if(multiPage){
-   	for(i in 1:length(ptHld)) print(ptHld[[i]])
-   }
-   else if(!is.null(singlePlot)) {
-   	if(singlePlot > length(ptHld)) stop(paste("If specified, the \"singlePlot\" argument must be an integer between 1 and ", length(ptHld), " for this object."))
-   	return(ptHld[[singlePlot]])
+	if(!is.null(treatments)){
+   		ptNum <- 1:nPlot[x$levExceptTreatAtt == treatments]
+   		return(ptHld[[ptNum]])
    	}
-   else if(!is.null(treatments)){
-   	ptNum <- 1:nPlot[x$levExceptTreatAtt == treatments]
-   	return(ptHld[[ptNum]])
-   	
-   }
-   else{
-   if(is.null(figureRows)){
-   	figureRows <- 1
-	if(nPlot > 2 & nPlot <= 6) figureRows <- 2
-	if(nPlot > 6) figureRows <- 3
-   }
+   	else displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)   
+   
 
-figCol <- ceiling(nPlot/figureRows)
-
-if(dev.cur() == 1) dev.new()
-
-curCol <- curRow <- 1
-
-for(i in 1:(nPlot-1)){
-	print(ptHld[[i]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = TRUE)
-	if(curCol < figCol){
-		curCol <- curCol + 1
-	}
-	else {
-		curCol <- 1
-		curRow <- curRow + 1
-	}
-}
-
-print(ptHld[[nPlot]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more = FALSE)
-}
 }
 }
 
@@ -491,9 +411,7 @@ print(ptHld[[nPlot]], split = c(curCol,curRow,nx = figCol,ny = figureRows), more
 		esDat$tRank[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- rep(collRanks, 2)
 	}
 	}
-   	
-   	   #	if(is.null(subst))	subst <- 1:length(levels(as.factor(esDat$whichComp)))
-   	
+   	   	
    	n.var2 <- max(esDat$tRank * (!is.na(esDat$tPVal)), na.rm=TRUE)
    	
    	pt1 <- xyplot(tPVal~tRank|whichComp, groups = weighted, data=esDat, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values \n (pairwise minimum)", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
