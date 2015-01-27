@@ -45,7 +45,7 @@ causal modeling of observational data through the estimation and
 evaluation of propensity scores and associated weights. This package
 was developed in 2004.  After extensive use, it received a major
 update in 2012. This tutorial provides an introduction to \texttt{twang} 
-and demonstrates its use through illustrative examples.
+and demonstrates its use through illustrative examples. 
 
 The foundation to the methods supported by \texttt{twang} is the 
 propensity score. The propensity score is the probability that a particular case would
@@ -94,7 +94,10 @@ The \texttt{twang} package aims to (i) compute from the data estimates of
 the propensity scores which yield accurate causal effect estimates, (ii)
 check the quality of the resulting propensity score weights by assessing 
 whether or not they have the balancing properties that we expect in theory, 
-and (iii) use them in computing treatment effect estimates.
+and (iii) use them in computing treatment effect estimates. Users who are
+more comfortable with SAS than R are encouraged to visit
+\url{www.rand.org/statistics/twang/sas-tutorial.html} for information
+SAS macros that implement these methods. 
 
 \section{An ATT example to start}
 
