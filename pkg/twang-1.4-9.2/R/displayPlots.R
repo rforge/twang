@@ -9,7 +9,7 @@ displayPlots <- function(ptList, figureRows, singlePlot, multiPage, bxpt = FALSE
    			}
    		else{
    			if(is.null(figureRows)){
-   				if(bxpt) figureRows <- length(ptList)
+   				if(bxpt) figureRows <- length(ptList) 
    				else{
       				figureRows <- 1					
    					if(nPlot > 2 & nPlot <= 6) figureRows <- 2
