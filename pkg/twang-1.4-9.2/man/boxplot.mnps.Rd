@@ -6,7 +6,8 @@
 \description{This function produces a collection of diagnostic plots for mnps objects. }
 
 \usage{ 
-\method{boxplot}{mnps}(x, stop.method = NULL, color = TRUE, figureRows = NULL, singlePlot = NULL, multiPage = FALSE, \dots)
+\method{boxplot}{mnps}(x, stop.method = NULL, color = TRUE, figureRows = NULL, 
+	singlePlot = NULL, multiPage = FALSE, \dots)
 }
 
 \arguments{

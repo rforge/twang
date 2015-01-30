@@ -6,9 +6,9 @@
 \description{This function produces a collection of diagnostic plots for ps objects. }
 
 \usage{ 
-\method{plot}{mnps}(x, plots = "optimize", 
-	pairwiseMax = TRUE, figureRows = NULL,  
-	color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, \dots)
+\method{plot}{mnps}(x, plots = "optimize", pairwiseMax = TRUE, figureRows = NULL,  
+	color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, 
+	multiPage = FALSE, \dots)
 }
 
 \arguments{

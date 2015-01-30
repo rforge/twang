@@ -8,9 +8,9 @@
  \code{\link{dx.wts}}, and \code{\link{mnps}} objects
 }
 \usage{
-bal.table(x, digits = 3, collapse.to = c("pair","covariate","stop.method")[1], subset.var = NULL,
-	subset.treat = NULL, subset.stop.method = NULL, es.cutoff = 0, ks.cutoff = 0, p.cutoff = 1, 
-	ks.p.cutoff = 1, \dots)
+bal.table(x, digits = 3, collapse.to = c("pair","covariate","stop.method")[1], 
+	subset.var = NULL, subset.treat = NULL, subset.stop.method = NULL, es.cutoff = 0, 
+	ks.cutoff = 0, p.cutoff = 1, ks.p.cutoff = 1, \dots)
 }
 
 \arguments{
