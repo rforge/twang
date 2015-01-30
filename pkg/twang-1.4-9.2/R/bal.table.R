@@ -5,6 +5,8 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    return(bal.tab)
    }
    else {
+   	tmt1 <- tmt2 <- stop.method <- std.eff.sz <- ks <- p <- ks.pval <- max.std.eff.sz <- max.ks <- min.p <- NULL
+   	min.ks.pval <- control <- NULL
    	if(x$estimand == "ATE"){
    		pwc <- pairwiseComparison(x, collapse.to = collapse.to)
    		if(!is.null(subset.var) & !(collapse.to == "stop.method")) pwc <- subset(pwc, var %in% subset.var | var %in% paste(subset.var, "<NA>", sep = ":"))

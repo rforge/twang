@@ -5,6 +5,8 @@ plotTruePairs <- function(x, subset = NULL, color = TRUE, ...){
 	stripBgCol <- ifelse(color, "#ffe5cc", "transparent")
 	ptSymCol <- ifelse(color, "#0080ff", "black")
 	
+	stop.method <- whichVar <- sig <- NULL
+	
 	
 	pairs <- pairwiseComparison(x)
 	stp <- x$stopMethods
