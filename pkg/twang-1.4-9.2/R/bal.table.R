@@ -1,8 +1,15 @@
 ## Generic function for extracting balance tables from ps and other objects
 bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.method")[1], subset.var = NULL, subset.treat = NULL, subset.stop.method = NULL, es.cutoff = 0, ks.cutoff = 0, p.cutoff = 1, ks.p.cutoff = 1, ...){
-	if(class(x) != "mnps"){
-   bal.tab <- lapply(x$desc, function(x){return(round(x$bal.tab$results, digits))})
+	if(class(x) == "ps"){
+   bal.tab <- bal.table.ps(x, digits = digits)
    return(bal.tab)
+   }
+   else if(class(x) == "iptw"){
+   	for(i in 1:length(x$psList)){
+   		cat("Balance at time ", x$uniqueTimes[i], ":\n")
+   		print(bal.table.ps(x$psList[[i]], digits = digits))
+   		cat("\n")
+   	}
    }
    else {
    	tmt1 <- tmt2 <- stop.method <- std.eff.sz <- ks <- p <- ks.pval <- max.std.eff.sz <- max.ks <- min.p <- NULL
@@ -16,16 +23,16 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    		}
    		if(!is.null(subset.stop.method)) pwc <- subset(pwc, stop.method %in% subset.stop.method)
    		if(collapse.to == "pair"){
-   			pwc <- subset(pwc, abs(std.eff.sz) >= es.cutoff)
-   			pwc <- subset(pwc, ks >= ks.cutoff)
-   			pwc <- subset(pwc, p <= p.cutoff)
-   			pwc <- subset(pwc, ks.pval <= ks.p.cutoff)   
+   			pwc <- subset(pwc, abs(std.eff.sz) >= es.cutoff | is.na(std.eff.sz) | is.nan(std.eff.sz))
+   			pwc <- subset(pwc, ks >= ks.cutoff | is.na(ks) | is.nan(ks))
+   			pwc <- subset(pwc, p <= p.cutoff | is.na(p) | is.nan(p))
+   			pwc <- subset(pwc, ks.pval <= ks.p.cutoff | is.na(ks.pval) | is.nan(ks.pval))   
    		}
    		else {
-   			pwc <- subset(pwc, abs(max.std.eff.sz) >= es.cutoff)
-   			pwc <- subset(pwc, max.ks >= ks.cutoff)
-   			pwc <- subset(pwc, min.p <= p.cutoff)
-   			pwc <- subset(pwc, min.ks.pval <= ks.p.cutoff)   
+   			pwc <- subset(pwc, abs(max.std.eff.sz) >= es.cutoff | is.na(max.std.eff.sz) | is.nan(max.std.eff.sz))
+   			pwc <- subset(pwc, max.ks >= ks.cutoff | is.na(max.ks) | is.nan(max.ks))
+   			pwc <- subset(pwc, min.p <= p.cutoff | is.na(min.p) | is.nan(min.p))
+   			pwc <- subset(pwc, min.ks.pval <= ks.p.cutoff | is.na(min.ks.pval) | is.nan(min.ks.pval))   
    		}
    		hldNum <- NULL
    		for(i in 1:length(pwc[1,])) hldNum <- c(hldNum, is.numeric(pwc[1,i]))
@@ -70,10 +77,10 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    			else balTabList <- subset(control %in% subset.treat)
    			}
    		if(!is.null(subset.stop.method)) balTabList <- subset(balTabList, stop.method %in% subset.stop.method)
-   		balTabList <- subset(balTabList, abs(std.eff.sz) >= es.cutoff)
-   		balTabList <- subset(balTabList, ks >= ks.cutoff)
-   		balTabList <- subset(balTabList, p <= p.cutoff)
-   		balTabList <- subset(balTabList, ks.pval <= ks.p.cutoff)
+   		balTabList <- subset(balTabList, abs(std.eff.sz) >= es.cutoff | is.na(std.eff.sz) | is.nan(std.eff.sz))
+   		balTabList <- subset(balTabList, ks >= ks.cutoff | is.na(ks) | is.nan(ks))
+   		balTabList <- subset(balTabList, p <= p.cutoff | is.na(p) | is.nan(p))
+   		balTabList <- subset(balTabList, ks.pval <= ks.p.cutoff | is.na(ks.pval) | is.nan(ks.pval))
    		hldNum <- NULL
    		for(i in 1:length(balTabList[1,])) hldNum <- c(hldNum, is.numeric(balTabList[1,i]))
    		balTabList[,hldNum] <- round(balTabList[,hldNum], digits = digits)	   		
@@ -88,10 +95,10 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    			colCov$max.ks[i] <- with(subset(balTabList, var == colCov$var[i] & stop.method == colCov$stop.method[i]), max(ks, ...))
    			colCov$min.ks.pval[i] <- with(subset(balTabList, var == colCov$var[i] & stop.method == colCov$stop.method[i]), min(ks.pval, ...))
    		}
-   		colCov <- subset(colCov, abs(max.std.eff.sz) >= es.cutoff)
-   		colCov <- subset(colCov, max.ks >= ks.cutoff)
-   		colCov <- subset(colCov, min.p <= p.cutoff)
-   		colCov <- subset(colCov, min.ks.pval <= ks.p.cutoff)   
+   		colCov <- subset(colCov, abs(max.std.eff.sz) >= es.cutoff | is.na(max.std.eff.sz) | is.nan(max.std.eff.sz))
+   		colCov <- subset(colCov, max.ks >= ks.cutoff | is.na(max.ks) | is.nan(max.ks))
+   		colCov <- subset(colCov, min.p <= p.cutoff | is.na(min.p) | is.nan(min.p))
+   		colCov <- subset(colCov, min.ks.pval <= ks.p.cutoff | is.na(min.ks.pval) | is.nan(min.ks.pval))   
    		hldNum <- NULL
    		for(i in 1:length(colCov[1,])) hldNum <- c(hldNum, is.numeric(colCov[1,i]))
    		colCov[,hldNum] <- round(colCov[,hldNum], digits = digits)	   		   		
@@ -105,10 +112,10 @@ bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.me
    			colStop$max.ks[i] <- with(subset(balTabList, stop.method == colStop$stop.method[i]), max(ks, ...))
    			colStop$min.ks.pval[i] <- with(subset(balTabList, stop.method == colStop$stop.method[i]), min(ks.pval, ...))
    		}
-   		colStop <- subset(colStop, abs(max.std.eff.sz) >= es.cutoff)
-   		colStop <- subset(colStop, max.ks >= ks.cutoff)
-   		colStop <- subset(colStop, min.p <= p.cutoff)
-   		colStop <- subset(colStop, min.ks.pval <= ks.p.cutoff)     	
+   		colStop <- subset(colStop, abs(max.std.eff.sz) >= es.cutoff | is.na(max.std.eff.sz) | is.nan(max.std.eff.sz))
+   		colStop <- subset(colStop, max.ks >= ks.cutoff | is.na(max.ks) | is.nan(max.ks))
+   		colStop <- subset(colStop, min.p <= p.cutoff | is.na(min.p) | is.nan(min.p))
+   		colStop <- subset(colStop, min.ks.pval <= ks.p.cutoff | is.na(min.ks.pval) | is.nan(min.ks.pval))     	
    		hldNum <- NULL
    		for(i in 1:length(colStop[1,])) hldNum <- c(hldNum, is.numeric(colStop[1,i]))
    		colStop[,hldNum] <- round(colStop[,hldNum], digits = digits)	 	
