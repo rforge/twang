@@ -1,6 +1,6 @@
 useDynLib(twang)
 
-export(ps, mnps, dx.wts, get.weights, bal.table, stop.methods, bal.stat, means.table)
+export(ps, mnps, dx.wts, get.weights, bal.table, stop.methods, bal.stat, means.table, iptw, sensitivity)
 importFrom(graphics, boxplot)
 import(gbm, latticeExtra, survey, xtable, lattice)
 
@@ -9,10 +9,13 @@ S3method(boxplot, mnps)
 S3method(plot, ps)
 S3method(plot, mnps)
 S3method(plot, dxwts)
+S3method(plot, iptw)
 S3method(summary, ps)
 S3method(summary, mnps)
+S3method(summary, iptw)
 S3method(print, summary.ps)
 S3method(print, summary.mnps)
+S3method(print, summary.iptw)
 S3method(print, dxwts)
 
 
