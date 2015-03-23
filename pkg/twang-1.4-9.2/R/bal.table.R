@@ -1,6 +1,6 @@
 ## Generic function for extracting balance tables from ps and other objects
 bal.table <- function(x, digits = 3, collapse.to = c("pair","covariate","stop.method")[1], subset.var = NULL, subset.treat = NULL, subset.stop.method = NULL, es.cutoff = 0, ks.cutoff = 0, p.cutoff = 1, ks.p.cutoff = 1, ...){
-	if(class(x) == "ps"){
+	if(!(class(x) %in% c("mnps", "iptw"))){
    bal.tab <- bal.table.ps(x, digits = digits)
    return(bal.tab)
    }
