@@ -1,5 +1,5 @@
 
-iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees = 10000, stop.method = "es.max", cumulative = TRUE, timeIndicators = NULL, ID = NULL, priorTreatment = FALSE,  ...){
+iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees = 10000, stop.method = "es.max", cumulative = TRUE, timeIndicators = NULL, ID = NULL, priorTreatment = TRUE,  ...){
 	if(!is.list(formula) & is.null(timeIndicators)) stop("\"formula\" must be a list with length equal to the number of time points (wide data format), or timeIndicators must be specified (long data format).")
 	
 	isLong <- !is.list(formula)
@@ -12,7 +12,6 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 	}
 	else{
 		wideDat <- NULL
-		if(priorTreatment) warning("The 'priorTreatment' argument only applies for long data formats.")
 	}
 	
 	if(isLong){
@@ -33,7 +32,6 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 		tvCovLong <- paste(tvCov, ".time.", unqTimes[1], sep = "")
 		formList[[1]] <- as.formula(paste(trtVarLong, paste(tvCovLong, collapse = " + "), sep= "~"))
 		wideDat <- hldDat
-		if(priorTreatment) hdNm <- c(attr(terms(formula), "variables")[[2]], hdNm)
 		for(i in 2:length(unqTimes)){
 			hldDat <- subset(data, timeIndicators == unqTimes[i])
 			hldDat <- hldDat[,names(hldDat) %in% c(tvCov, trtVar)]
@@ -63,6 +61,15 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 
 	nFits <- length(formList)
 	
+	if(priorTreatment) {
+		for(i in 2:nFits){
+			oldTerms <- attr(terms(formList[[i]]), "term.labels")
+			allTerms <- c(oldTerms, attr(terms(formList[[i-1]]), "variables")[[2]])
+			allTerms <- allTerms[!duplicated(allTerms)]
+			formList[[i]] <- as.formula(paste(all.vars(formList[[i]])[1], paste(allTerms, collapse = " + "), sep = "~"))
+		}
+	}		
+	
 	if(cumulative){
 		for(i in 2:nFits){
 			oldTerms <- attr(terms(formList[[i-1]]), "term.labels")
@@ -70,6 +77,8 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 			formList[[i]] <- as.formula(paste(all.vars(formList[[i]])[1], paste(allTerms, collapse = " + "), sep = "~"))
 		}
 	}
+	
+
 	
 	formula <- formList	
 	
