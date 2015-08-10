@@ -313,11 +313,16 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    if (plots == "es" || plots == 3)	{ ## es plot
    	
-   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 3, subsetStopMeth = subset)
-   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 3, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE)$pVal)
-   	effSzList <- effSzListUnw <- pValListUnw <- pValList <- matrix(NA, nrow = nVar, ncol = length(x$psList))
-   	
+#   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 3, subsetStopMeth = subset)
+#   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 3, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE)$pVal)
+#   	effSzList <- effSzListUnw <- pValListUnw <- pValList <- matrix(NA, nrow = nVar, ncol = length(x$psList))\
+   	   	
    	pwc <- bal.table(x, collapse.to = "covariate")
+   	
+   	nVar <- nrow(subset(pwc, stop.method == "unw"))
+   	
+   	hldEffSz <- hldPVal <- hldEsBig <- hldWhichComp <- hldWhichVar <- hldWeighted <- rep(NA, (nVar * length(subset) * 2))
+
    	
    	cnt <- 0
    	for(k in subset){
@@ -329,11 +334,18 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		collapsedUnwP <- pwc$min.p[pwc$stop.method == "unw"] < .05		
 	
 		esBigHold <- collapsed > collapsedUnw
-		esDat$effectSize[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsed, collapsedUnw)
-		esDat$pVal[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsedP, collapsedUnwP)
-		esDat$esBig[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(esBigHold, 2)
+#		esDat$effectSize[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsed, collapsedUnw)
+#		esDat$pVal[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsedP, collapsedUnwP)
+#		esDat$esBig[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(esBigHold, 2)
+		hldEffSz[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsed, collapsedUnw)
+		hldPVal[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsedP, collapsedUnwP)
+		hldEsBig[(1:(2*nVar)) + (cnt-1)*2*nVar] <-  rep(esBigHold, 2)
+		hldWhichComp[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(x$stopMethods[k], 2 * nVar)
+		hldWhichVar[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(1:nVar, 2)
+		hldWeighted[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(c("Weighted","Unweighted"), each = nVar)
 	}
    	
+   	esDat <- data.frame(effectSize = abs(hldEffSz), esBig = hldEsBig, whichComp = hldWhichComp, weighted = hldWeighted, whichVar = hldWhichVar, pVal = hldPVal)
    	
    	yMax <- min(3,max(esDat[,1])) + .05	
    	
@@ -395,10 +407,15 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if (plots == "t" || plots == 4) { ## t p-values plot
 
-   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 4, subsetStopMeth = subset)
-   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 4, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE))
-   	effSzList <- effSzListUnw <- matrix(NA, nrow = nVar, ncol = length(x$psList))   	
+#   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 4, subsetStopMeth = subset)
+#   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 4, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE))
+#   	effSzList <- effSzListUnw <- matrix(NA, nrow = nVar, ncol = length(x$psList))   	
    	pwc <- bal.table(x, collapse.to = "covariate")
+   	
+   	nVar <- nrow(subset(pwc, stop.method == "unw"))
+   	
+   	hldTPVal <- hldTRank <- hldWhichComp <- hldWhichVar <- hldWeighted <- rep(NA, (nVar * length(subset) * 2))
+   	
   	
    	
    	cnt <- 0
@@ -408,11 +425,16 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
 		collapsed <- pwc$min.p[pwc$stop.method == x$stopMethods[k]]	
 		collapsedUnw <- pwc$min.p[pwc$stop.method == 'unw']		
 		collRanks <- rank(collapsed, ties.method = "first")
-		esBigHold <- collapsed > collapsedUnw
-		esDat$tPVal[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- c(collapsed, collapsedUnw)
-		esDat$tRank[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- rep(collRanks, 2)
+#		esBigHold <- collapsed > collapsedUnw
+		hldTPVal[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- c(collapsed, collapsedUnw)
+		hldTRank[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- rep(collRanks, 2)
+		hldWhichComp[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(x$stopMethods[k], 2 * nVar)
+		hldWhichVar[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(1:nVar, 2)
+		hldWeighted[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(c("Weighted","Unweighted"), each = nVar)		
 	}
 	}
+	
+	esDat <- data.frame(tPVal = hldTPVal, tRank = hldTRank, whichComp = hldWhichComp, weighted = hldWeighted)
    	   	
    	n.var2 <- max(esDat$tRank * (!is.na(esDat$tPVal)), na.rm=TRUE)
    	
@@ -429,30 +451,45 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}
    
    if (plots =="ks" || plots ==5) {  ## ks plot
-   	if(x$estimand =="ATE") pwc <- pairwiseComparison(x, collapse.to = "covariate")
+#   	if(x$estimand =="ATE") pwc <- pairwiseComparison(x, collapse.to = "covariate")
 
-   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 5, subsetStopMeth = subset)
-   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 5, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE))
-   	effSzList <- effSzListUnw <- matrix(NA, nrow = nVar, ncol = length(x$psList))   	
+   	pwc <- bal.table(x, collapse.to = "covariate")
+   	
+   	nVar <- nrow(subset(pwc, stop.method == "unw"))
+
+
+#   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 5, subsetStopMeth = subset)
+#   	nVar <- length(makePlotDat(x$psList[[1]], whichPlot = 5, subsetStopMeth = 1, yOnly = TRUE, incUnw = FALSE))
+#   	effSzList <- effSzListUnw <- matrix(NA, nrow = nVar, ncol = length(x$psList))  
+
+#   	nVar <- nrow(subset(pwc, stop.method == "unw"))
+   	
+   	hldKsPVal <- hldKsRank <- hldWhichComp <- hldWhichVar <- hldWeighted <- rep(NA, (nVar * length(subset) * 2))
+    	
    	
    	cnt <- 0
    	for(k in subset){
    		cnt <- cnt + 1
    	for(j in 1:length(x$psList)){	
-	x2 <- x$psList[[j]]
-	effSzList[,j] <- makePlotDat(x2, whichPlot = 5, subsetStopMeth = k, yOnly = TRUE, incUnw = FALSE)
-	effSzListUnw[,j] <- makePlotDat(x2, whichPlot = 5, subsetStopMeth = 1, yOnly = TRUE, incUnw = TRUE)[1:nVar]
-	collapsed <- apply(effSzList, 1, max)
-	if(x$estimand == "ATE") collapsed <- pwc$min.ks.pval[pwc$stop.method == x$stopMethods[k]]
-	collapsedUnw <- apply(effSzListUnw, 1, max)
-	if(x$estimand == "ATE") collapsedUnw <- pwc$min.ks.pval[pwc$stop.method == "unw"]	
+#	x2 <- x$psList[[j]]
+#	effSzList[,j] <- makePlotDat(x2, whichPlot = 5, subsetStopMeth = k, yOnly = TRUE, incUnw = FALSE)
+#	effSzListUnw[,j] <- makePlotDat(x2, whichPlot = 5, subsetStopMeth = 1, yOnly = TRUE, incUnw = TRUE)[1:nVar]
+#	collapsed <- apply(effSzList, 1, max)
+#	if(x$estimand == "ATE") collapsed <- pwc$min.ks.pval[pwc$stop.method == x$stopMethods[k]]
+#	collapsedUnw <- apply(effSzListUnw, 1, max)
+	collapsed <- pwc$min.ks.pval[pwc$stop.method == x$stopMethods[k]]	
+	collapsedUnw <- pwc$min.ks.pval[pwc$stop.method == 'unw']			
+#	if(x$estimand == "ATE") collapsedUnw <- pwc$min.ks.pval[pwc$stop.method == "unw"]	
 	collRanks <- rank(collapsed, ties.method = "first")
-	esBigHold <- collapsed > collapsedUnw
-	esDat$ksPVal[(1:(2*nVar)) + (cnt-1)*2*nVar] <- c(collapsed, collapsedUnw)
-	esDat$ksRank[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(collRanks, 2)
-	}
+#	esBigHold <- collapsed > collapsedUnw
+		hldKsPVal[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- c(collapsed, collapsedUnw)
+		hldKsRank[(1:(2*nVar)) + (cnt - 1)*2*nVar] <- rep(collRanks, 2)
+		hldWhichComp[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(x$stopMethods[k], 2 * nVar)
+		hldWhichVar[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(1:nVar, 2)
+		hldWeighted[(1:(2*nVar)) + (cnt-1)*2*nVar] <- rep(c("Weighted","Unweighted"), each = nVar)		}
 	} 
 
+	esDat <- data.frame(ksPVal = hldKsPVal, ksRank = hldKsRank, whichComp = hldWhichComp, weighted = hldWeighted)
 
    	
    	if(is.null(subst))	subst <- 1:length(levels(as.factor(esDat$whichComp)))

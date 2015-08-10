@@ -149,7 +149,7 @@ if (plots == "optimize" || plots == 1) {
 		xlb <- paste("Rank of p-value for pretreatment variables \n (hollow is weighted, solid is unweighted) \n Time ", time, sep = "")
 	}   	   	
    	
-   	pt1 <- xyplot(ksPVal~ksRank|whichComp, groups=weighted, scales = list(alternating = 1), data = esDat,ylim = c(-.1, 1.1), ..., xlab = xlb, pch = c(19,1), col="black", par.settings = list(strip.background = list(col=stripBgCol)),
+   	pt1 <- xyplot(ksPVal~ksRank|whichComp, groups=weighted, scales = list(alternating = 1), data = esDat,ylim = c(-.1, 1.1), ..., xlab = xlb, ylab = "KS p-values", pch = c(19,1), col="black", par.settings = list(strip.background = list(col=stripBgCol)),
    	subset = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subset]) & (esDat$ksRank <= n.var2),
    	panel = function(...){
    		panel.xyplot(x=c(1,n.var2), y=c(0,1), col= ltBl, type="l")
@@ -161,7 +161,7 @@ if (plots == "optimize" || plots == 1) {
 #   	pt1 <- histogram.dxwts(...)
    	
    	if (plots == "boxplot" || plots == 2){
-			pt1 <- boxplot(x, color = color, subset = subset, ...)
+			pt1 <- boxplot(x, color = color, subset = subset, time = time, ...)
    		}
    	
    	if (plots == "histogram" || plots == 6){

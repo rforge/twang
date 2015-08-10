@@ -123,15 +123,15 @@ sensitivity <- function(ps1,data,
 ## Currently works only for ATT
 ## Revised March 1, 2015 by Dan McCaffrey
 ## Updated in work the ps version 1.2 or later
+## Corrected April 3, 2015 -- change E0 to E1 in breakeven corr
 ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	if(class(ps1) != "ps") stop("The 'sensitivity' function is currently only implemented for ps objects.")
   stop.method <- eval(ps1$parameters$stop.method)
 #  if(class(stop.method)=="stop.method") 
 #  {
 #    stop.method <- list(stop.method)
 #  }
   estimand <- ps1$estimand
-    
+  
   results0 <- results1 <- vector("list",length(stop.method))
   for(i.smethod in 1:length(stop.method))
   {
@@ -264,9 +264,16 @@ sensitivity <- function(ps1,data,
         eff$rho[i.eff] <- mean(b.cor)
       }
       
-      design.ps <- svydesign(ids=~1,weights=~w,data=d0)
-      E0 <- as.numeric(svymean(make.formula(outcome),design.ps))
-      results0[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E0,eff$rho,E0)$y
+#      design.ps <- svydesign(ids=~1,weights=~w,data=d0)
+#      E0 <- as.numeric(svymean(make.formula(outcome),design.ps))
+#      results0[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E0,eff$rho,E0)$y
+
+      i1 <- which(data[,ps1$treat.var]==1)
+      d1 <- data[i1, outcome, drop=FALSE]
+      d1$w <- ps1$w[[weightname]][i1]
+      design.ps1 <- svydesign(ids=~1,weights=~w,data=d1)
+      E1 <- as.numeric(svymean(make.formula(outcome),design.ps1))
+      results0[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E0,eff$rho,E1)$y
    
    #%%%%%%%%% ATE Only %%%%%%%%%#
 
@@ -345,9 +352,16 @@ sensitivity <- function(ps1,data,
         eff$rho[i.eff] <- mean(b.cor)
       }
       
-      design.ps <- svydesign(ids=~1,weights=~w,data=d0)
-      E1 <- as.numeric(svymean(make.formula(outcome),design.ps))
-      results1[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E1,eff$rho,E1)$y
+#      design.ps <- svydesign(ids=~1,weights=~w,data=d0)
+#      E1 <- as.numeric(svymean(make.formula(outcome),design.ps))
+#      results1[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E1,eff$rho,E1)$y
+
+      i0 <- which(data[,ps1$treat.var]==0)
+      dzero <- data[i0, outcome, drop=FALSE]
+      dzero$w <- ps1$w[[weightname]][i0]
+      design.ps0 <- svydesign(ids=~1,weights=~w,data=dzero)
+      E0 <- as.numeric(svymean(make.formula(outcome),design.ps0))
+      results1[[i.smethod]]$breakeven.cor[i.var] <- approx(eff$E1,eff$rho,E0)$y
       }  ## Ends the if ATE loop
     }  ## Ends the i.var loop
 
@@ -384,9 +398,9 @@ sensitivity <- function(ps1,data,
       ##%%%% Repeat for Control Occurs for ATE and ATT %%%## 
       
       ## Get the min and max means and correlation with the outcome using Psych Meth bounds
-      Gmin <- min(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max))
-      Gmax <- max(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max))
-      Gmed <- median(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max))
+      Gmin <- min(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max), na.rm=T)
+      Gmax <- max(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max), na.rm=T)
+      Gmed <- median(c(1/results0[[i.smethod]]$a.min, results0[[i.smethod]]$a.max), na.rm=T)
 
       minres <- unlist(sensit(d0[,outcome], d0$w, Gmin)[c("min_mean", "max_mean", "min_cor", "max_cor")])
       names(minres) <- paste("Gmin", names(minres), sep="_")
@@ -416,26 +430,3 @@ sensitivity <- function(ps1,data,
   
   return(results)
 }
-
-#library(twang)
-#
-#load("ps.lalonde.RData")
-#sout <- sensitivity(ps1=ps.lalonde, data=ps.lalonde$data, outcome="re78") 
-#
-#data(lalonde)
-#
-#psb <- ps(
-#  treat ~ age + educ + black + hispan + nodegree + 
-#          married + re74 + re75,
-#  data = lalonde,
-#  estimand = "ATE",
-#  stop.method=stop.methods[c("es.stat.mean",
-#                             "ks.stat.max")],
-#  n.trees = 2000, 
-#  interaction.depth = 2, 
-#  shrinkage = 0.01, 
-#  perm.test.iters = 0, 
-#  verbose = FALSE)
-
-#soutb <- sensitivity(ps1=psb, data=psb$data, outcome="re78") 
-
