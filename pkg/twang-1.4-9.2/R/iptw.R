@@ -1,5 +1,5 @@
 
-iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees = 10000, stop.method = "es.max", cumulative = TRUE, timeIndicators = NULL, ID = NULL, priorTreatment = TRUE,  ...){
+iptw <- function(formula, data, timeInvariant = NULL, n.trees = 10000, stop.method = "es.max", cumulative = TRUE, timeIndicators = NULL, ID = NULL, priorTreatment = TRUE,  ...){
 	if(!is.list(formula) & is.null(timeIndicators)) stop("\"formula\" must be a list with length equal to the number of time points (wide data format), or timeIndicators must be specified (long data format).")
 	
 	isLong <- !is.list(formula)
@@ -15,7 +15,7 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 	}
 	
 	if(isLong){
-		if(is.null(ID)) warning("Using long data format specification without IDs. The function is assuming \n that the ordering of subjects in 'data' is the same at all time points.")
+		if(is.null(ID)) warning("Using long data format specification without IDs. The function assumes \n that the ordering of subjects in 'data' is the same at all time points.")
 		tvCov <- attr(terms(formula), "term.labels")
 		if(!is.null(timeInvariant)) tiCov <- attr(terms(timeInvariant), "term.labels")
 		tb <- table(timeIndicators)
@@ -53,8 +53,10 @@ iptw <- function(formula, data, timeInvariant = NULL, estimand = "ATE", n.trees 
 	if(! is.null(timeInvariant)){
 		invTerms <- attr(terms(timeInvariant), "term.labels")
 		for(i in 1:length(formula)){
-			currTerms <- union(attr(terms(timeInvariant), "term.labels"), invTerms)
-			formList[[i]] <- as.formula(paste(all.vars(formList[[i]])[1], paste(invTerms, collapse = " + "), sep = "~"))
+			currTerms <- union(attr(terms(formList[[i]]), "term.labels"), invTerms)
+			#formList[[i]] <- as.formula(paste(all.vars(formList[[i]])[1], paste(invTerms, collapse = " + "), sep = "~"))
+			formList[[i]] <- as.formula(paste(all.vars(formList[[i]])[1], paste(currTerms, collapse = " + "), sep = "~"))
+
 		}
 	}
 
