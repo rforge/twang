@@ -3,6 +3,7 @@ iptw <- function(formula, data, timeInvariant = NULL, n.trees = 10000, stop.meth
 	if(!is.list(formula) & is.null(timeIndicators)) stop("\"formula\" must be a list with length equal to the number of time points (wide data format), or timeIndicators must be specified (long data format).")
 	
 	isLong <- !is.list(formula)
+	estimand <- NULL
 	
 	if(isLong){
 		if(length(grep(".time.", attr(terms(formula), "term.labels"))) > 0){
@@ -87,10 +88,10 @@ iptw <- function(formula, data, timeInvariant = NULL, n.trees = 10000, stop.meth
 	psList <- vector(mode = "list", length = length(formula))
 		
 	for(i in 1:nFits){
-		psList[[i]] <- ps(formula[[i]], data = dt2, n.trees = n.trees, stop.method = stop.method, ...)	
+		psList[[i]] <- ps(formula[[i]], data = dt2, n.trees = n.trees, stop.method = stop.method, estimand = "ATE", ...)	
 	}
 	
-	outObj <- list(psList = psList, estimand = estimand, stop.methods = stop.method, nFits = nFits, 
+	outObj <- list(psList = psList, stop.methods = stop.method, nFits = nFits, 
 	uniqueTimes = unqTimes)
 	
 	class(outObj) <- "iptw"

@@ -141,7 +141,7 @@ sensitivity <- function(ps1,data,
     if(order.by.importance)
     {
       best.iter <- ps1$desc[[weightname]]$n.trees
-      vars <- as.character(gbm:::summary.gbm(ps1$gbm.obj,n.trees=best.iter,plot=FALSE)$var)
+      vars <- as.character(gbm::summary.gbm(ps1$gbm.obj,n.trees=best.iter,plot=FALSE)$var)
     } else
     {
       vars <- ps1$gbm.obj$var.names
