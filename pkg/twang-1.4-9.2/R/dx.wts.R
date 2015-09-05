@@ -128,7 +128,7 @@ dx.wts <- function(x,  data, estimand, vars=NULL, treat.var, x.as.weights=TRUE, 
                   w          = as.matrix(w[,-1]),
                   datestamp  = date(),
                   parameters = match.call(),
-                  alerts     = alert,
+#                  alerts     = alert,
                   varNames   = vars)
    class(result) <- "dxwts"
    return(result)
