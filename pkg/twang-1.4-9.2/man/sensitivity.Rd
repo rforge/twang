@@ -1,4 +1,5 @@
 \name{sensitivity}
+\alias{sensitivity}
 
 \title{Sensitivity analyses for propensity score analyses}
 

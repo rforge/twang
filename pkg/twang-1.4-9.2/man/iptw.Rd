@@ -1,4 +1,5 @@
 \name{iptw}
+\alias{iptw}
 
 \title{Inverse probability of treatment weighting for marginal structural models}
 
@@ -6,7 +7,7 @@
 	 propensity scores for sequential treatments.}
 
 \usage{ 
-ps(formula,
+iptw(formula,
    data,
    timeInvariant = NULL,
    n.trees = 10000,
@@ -14,7 +15,7 @@ ps(formula,
    cumulative = TRUE,
    timeIndicators = NULL,
    ID = NULL,
-   priorTreatment = FALSE, ...)
+   priorTreatment = TRUE, ...)
 
 }
 
@@ -37,7 +38,7 @@ across the pretreatment variables by either the maximum (\code{.max}) or the mea
 }
 
 
-\details{This function uses generalized boosted models to estimate inverse probability of treatment weights for repeated treatments.}
+\details{This function uses generalized boosted models to estimate inverse probability of treatment weights for sequential treatments.}
 
 \value{ 
 Returns an object of class \code{iptw}, a list containing 
