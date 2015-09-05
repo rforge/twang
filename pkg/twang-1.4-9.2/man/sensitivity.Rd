@@ -21,7 +21,7 @@ sensitivity(ps1,
 
 
 \details{
-Performs the sensitivity analyses described in Ridgeway (2006).}
+Performs the sensitivity analyses described in Ridgeway (2006). This is a beta version of this functionality. Please let the developers know if you have problems with it. }
 
 \value{ 
 	\item{tx}{Summary for treated observations.}
