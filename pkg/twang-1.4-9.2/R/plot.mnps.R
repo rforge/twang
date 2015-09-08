@@ -1,5 +1,5 @@
 ##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATE", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
-plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, ...){
+plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, time = NULL, ...){
 	
 	stop.method <- tmt1 <- tmt2 <- sig <- NULL   
 
@@ -45,7 +45,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if(plots == 2 | plots == "boxplot"){
    	
-   	boxplot(x, color = color, stop.method = subset, multiPage = multiPage, singlePlot = singlePlot, ...)
+   	boxplot(x, color = color, stop.method = subset, multiPage = multiPage, singlePlot = singlePlot, time = time, ...)
    	
    }
    
@@ -56,6 +56,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    for(i in 1:nPlot){
    	if(x$estimand == "ATT") ptNm <- paste("Balance for", x$levExceptTreatATT[i], "versus unweighted", x$treatATT)
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
+   	if(!is.null(time)){ptName <- paste(ptNm, " (time ", time, ")", sep = "")}
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset)
    	}
    
@@ -145,11 +146,13 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		if(any(subsetHold)){   	
    			esDatTmp <- plotTab
    			esDatTmp$std.eff.sz[!subsetHold] <- NA	
+   			ptNm <- paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = "")
+   			if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")
    			pt1.1 <- xyplot(std.eff.sz ~ weighted | stopMeth, groups = whichVar, data = esDatTmp, 
    				scales = list(alternating = 1), ylim = c(-.05, yMax), type = "l", col = ltBl, 
    				as.table = TRUE, subset = subsetHold, par.settings = list(strip.background = list(col=stripBgCol)),
    				ylab = "Absolute standard difference", xlab = NULL, 
-   				main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
+   				main = ptNm,
    				panel = function(...){
    					panel.abline(h=c(.2,.5,.8), col="gray80")
    					panel.xyplot(...)
@@ -165,8 +168,10 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
 	   	if(any(subsetHold)){
    		   	esDatTmp <- plotTab
    			esDatTmp$std.eff.sz[!subsetHold] <- NA		
+   			ptNm <- paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = "")
+   			if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")
    			pt1.2 <- xyplot(std.eff.sz ~ weighted | stopMeth, groups = whichVar, 
-   			main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
+   			main = ptNm,
    			data = esDatTmp, ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE, 
    			ylim = c(-.05, yMax), type = "l", col = rdCol, par.settings = list(strip.background = list(col=stripBgCol)),
    			lwd = 2)
@@ -186,10 +191,13 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		else if(all(plotTab$p >= 0.05, na.rm=TRUE)) pchHold <- 1
    		else pchHold <- c(1,19)
    	
+		ptNm <- paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = "")
+   		if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")
+
    		pt2 <- xyplot(std.eff.sz ~ weighted | stopMeth, groups = sig >= .05, data = plotTab,
    			ylab = "Absolute standard difference", xlab = NULL, 
    			ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,
-   			main = paste("Balance of ", ptNames[[i]][1], " versus ", ptNames[[i]][2], sep = ""),
+   			main = ptNm,
    			#subset = subsetHold, 
    			par.settings = list(strip.background = list(col=stripBgCol)))
    		ptHold <- ptHold + pt2
@@ -226,8 +234,11 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	n.var2 <- max(plotTab$tRank * (!is.na(plotTab$p)), na.rm=TRUE)
    	
+	ptNm <- paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = "")
+   	if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")
+   	
    	pt1 <- xyplot(p~tRank|stopMeth, groups = weighted, data=plotTab, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
-   	main = paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = ""),
+   	main = ptNm,
    	ylim = c(-.1, 1.1), 
    	   	panel = function(...){
    	   		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
@@ -264,8 +275,12 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	n.var2 <- max(plotTab$ksRank * (!is.na(plotTab$ks.pval)), na.rm=TRUE)
    	
+	ptNm <- paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = "")
+   	if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")
+   	
+   	
    	pt1 <- xyplot(ks.pval~ksRank|stopMeth, groups = weighted, data=plotTab, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
-   	main = paste("Comparison of ", ptNames[[i]][1], " and ", ptNames[[i]][2], sep = ""),
+   	main = ptNm,
    	ylim = c(-.1, 1.1),
    	   	panel = function(...){
    	   		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
@@ -293,6 +308,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    for(i in 1:nPlot){
    	if(x$estimand == "ATT") ptNm <- paste("Balance for", x$levExceptTreatATT[i], "versus unweighted", x$treatATT)
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
+   	if(!is.null(time)) ptNm <- paste(ptNm, " (time ", time, ")", sep = "")   	
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, color = color, subset=subset)
    }
    
@@ -357,12 +373,14 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
        	
    	subsetHold <- !esDat$esBig 
    	
+   	ptNm <- NULL
+   	if(!is.null(time)) ptNm <- paste("Time ", time, sep = "")
    	
    	if(any(subsetHold)){
    		esDatTmp <- esDat
    		esDatTmp$effectSize[!subsetHold] <- NA
    		pt1.1 <- xyplot(effectSize ~ weighted | whichComp, groups = whichVar, data = esDatTmp, scales = list(alternating = 1),
-   			ylim = c(-.05, yMax), type = "l", col = ltBl, as.table = TRUE,
+   			ylim = c(-.05, yMax), type = "l", col = ltBl, as.table = TRUE, main = ptNm, 
    			ylab = "Absolute standardized difference \n (maximum pairwise)", xlab = NULL, par.settings = list(strip.background = list(col=stripBgCol)),
    			panel = function(...){
    				panel.abline(h=c(.2,.5,.8), col="gray80")
@@ -379,7 +397,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		esDatTmp$effectSize[!subsetHold] <- NA
    		pt1.2 <- xyplot(effectSize ~ weighted | whichComp, groups = whichVar, 
    			data = esDatTmp, ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE,
-   			ylim = c(-.05, yMax), type = "l", col = rdCol, par.settings = list(strip.background = list(col=stripBgCol)),
+   			ylim = c(-.05, yMax), type = "l", col = rdCol, par.settings = list(strip.background = list(col=stripBgCol)), main = ptNm,
    			lwd = 2)
    		if(!nullPlot){
    			currPt <- currPt + pt1.2
@@ -396,7 +414,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	else pchHold <- c(19,1)
    	
    	pt2 <- xyplot(effectSize ~ weighted | whichComp, groups = (pVal < 0.05), data = esDat,
-   	ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE, 
+   	ylab = "Absolute standard difference", xlab = NULL, as.table = TRUE, main = ptNm, 
    	ylim = c(-.05, yMax), type = "p", col = rdCol, pch = pchHold,par.settings = list(strip.background = list(col=stripBgCol)))
    	if(!nullPlot) currPt <- currPt + pt2
    	else currPt <- pt2
@@ -416,6 +434,8 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	
    	hldTPVal <- hldTRank <- hldWhichComp <- hldWhichVar <- hldWeighted <- rep(NA, (nVar * length(subset) * 2))
    	
+   	ptNm <- NULL
+   	if(!is.null(time)) ptNm <- paste("Time ", time, sep = "")
   	
    	
    	cnt <- 0
@@ -438,7 +458,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	   	
    	n.var2 <- max(esDat$tRank * (!is.na(esDat$tPVal)), na.rm=TRUE)
    	
-   	pt1 <- xyplot(tPVal~tRank|whichComp, groups = weighted, data=esDat, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values \n (pairwise minimum)", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)),
+   	pt1 <- xyplot(tPVal~tRank|whichComp, groups = weighted, data=esDat, xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "t- and chi-squared p-values \n (pairwise minimum)", pch = c(19,1), col = "black", scales = list(alternating = 1), par.settings = list(strip.background = list(col=stripBgCol)), main = ptNm,
    	#subst = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subst]) & (esDat$tRank <= n.var2), 
    	ylim = c(-.1, 1.1), 
    	   	panel = function(...){
@@ -456,6 +476,10 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	pwc <- bal.table(x, collapse.to = "covariate")
    	
    	nVar <- nrow(subset(pwc, stop.method == "unw"))
+
+   	ptNm <- NULL
+   	if(!is.null(time)) ptNm <- paste("Time ", time, sep = "")
+   	
 
 
 #   	esDat <- makePlotDat(x$psList[[1]], whichPlot = 5, subsetStopMeth = subset)
@@ -497,8 +521,8 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	n.var2 <- max(esDat$ksRank*(!is.na(esDat$ksPVal)), na.rm=TRUE)
    	
    	pt1 <- xyplot(ksPVal~ksRank|whichComp, groups=weighted, scales = list(alternating = 1), data = esDat,ylim = c(-.1, 1.1),
-   	 xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col="black",par.settings = list(strip.background = list(col=stripBgCol)),
-   	subst = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subst]) & (esDat$ksRank <= n.var2),
+   	 xlab = "Rank of p-value rank for pretreatment variables \n (hollow is weighted, solid is unweighted)", ylab = "KS test p-values", pch = c(19,1), col="black", par.settings = list(strip.background = list(col=stripBgCol)), main = ptNm, 
+   	subset = (as.factor(esDat$whichComp) %in% levels(as.factor(esDat$whichComp))[subst]) & (esDat$ksRank <= n.var2),
    	panel = function(...){
    		panel.xyplot(x=c(1,n.var2), y=c(0,1), col=ltBl, type="l")
    		panel.xyplot(...)

@@ -85,16 +85,24 @@ iptw <- function(formula, data, timeInvariant = NULL, n.trees = 10000, stop.meth
 	
 	formula <- formList	
 	
+	y1 <- model.extract(model.frame(formula[[1]], data = dt2) , component = "response")
+	if(all(y1) %in% c(0,1)) fitType <- 1
+	else if(is.factor(y1)) fitType <- 2
+	else stop("Treatment variable must either be 0/1 or a factor.")
+	
 	psList <- vector(mode = "list", length = length(formula))
+	
 		
 	for(i in 1:nFits){
-		psList[[i]] <- ps(formula[[i]], data = dt2, n.trees = n.trees, stop.method = stop.method, estimand = "ATE", ...)	
+		if(fitType == 1) psList[[i]] <- ps(formula[[i]], data = dt2, n.trees = n.trees, stop.method = stop.method, estimand = "ATE", ...)	
+		if(fitType == 2) psList[[i]] <- mnps(formula[[i]], data = dt2, n.trees = n.trees, stop.method = stop.method, estimand = "ATE", ...)	
 	}
 	
 	outObj <- list(psList = psList, stop.methods = stop.method, nFits = nFits, 
 	uniqueTimes = unqTimes)
 	
-	class(outObj) <- "iptw"
+	if(fitType ==1) class(outObj) <- "iptw"
+	if(fitType == 2) class(outObj) <- "mniptw"
 	return(outObj)
 	
 }
