@@ -14,8 +14,9 @@ sensitivity(ps1,
 }
 
 \arguments{
-  \item{ps}{A ps object.}
+  \item{ps1}{A ps object.}
   \item{data}{The dataset including the outcomes}
+  \item{outcome}{The outcome of interest.}
   \item{order.by.importance}{Orders the output by relative importance of covariates.}
   \item{verbose}{If TRUE, extra information will be printed.}
 }
