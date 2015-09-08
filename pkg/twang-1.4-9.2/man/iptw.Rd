@@ -51,7 +51,7 @@ Returns an object of class \code{iptw}, a list containing
 
 
 
-\seealso{ \code{\link[ps]{ps}} }
+\seealso{ \code{\link{ps}} }
 
 
 \keyword{models}
