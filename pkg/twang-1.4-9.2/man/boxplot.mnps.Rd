@@ -7,7 +7,7 @@
 
 \usage{ 
 \method{boxplot}{mnps}(x, stop.method = NULL, color = TRUE, figureRows = NULL, 
-	singlePlot = NULL, multiPage = FALSE, time = NULL, \dots)
+	singlePlot = NULL, multiPage = FALSE, time = NULL, print = TRUE, \dots)
 }
 
 \arguments{
@@ -18,6 +18,8 @@
 \item{singlePlot}{If multiple sets of boxplots are produced, \code{singlePlot} can be used to select only one. For example, \code{singlePlot = 2} would return only the second set of boxplots.}
 \item{multiPage}{When multiple frames of a figure are produced, \code{multiPage = TRUE} will print each frame on a different page. This is intended for situations where the graphical output is being saved to a file.}
 \item{time}{For use with iptw fits.}
+\item{print}{If FALSE, the figure is returned but not printed.}
+
 
   \item{...}{Additional arguments that may be passed to the underlying \code{lattice} package plotting functions}
 }
