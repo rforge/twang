@@ -6,7 +6,7 @@ plot.mniptw <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NUL
 
    # extract the propensity scores and weights from the ps object
    
-   singlePlot <- NULL
+#   singlePlot <- NULL
    
 	if(!is.numeric(subset) & !is.null(subset)){
 		if(!all(subset %in% x$stopMethods)) stop("The \"subset\" arugment must be NULL, numeric, or one of the stop.methods specified when fitting the mnps object.")
@@ -25,10 +25,19 @@ plot.mniptw <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NUL
    
    hdPt <- vector(mode = "list", length = length(timePeriods))
    
-   for(i in 1:length(timePeriods)){
-   	hdPt[[i]] <- plot(x$psList[[i]], plots, subset = subset, color = color, time = timePeriods[i], ...)
-   }
+   	for(i in 1:length(timePeriods)){
+   		hdPt[[i]] <- plot(x$psList[[timePeriods[i]]], plots = plots, subset = subset, color = color, time = timePeriods[i], print = FALSE, ...)
+   	}
    
-   	if(length(timePeriods) == 1) return(hdPt[[1]])
-	else displayPlots(hdPt, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)	
+   	#if(length(timePeriods) == 1) return(hdPt[[1]])
+	#else 
+	if(class(hdPt[[1]]) == "trellis") {
+		if(length(hdPt) == 1) print(hdPt[[1]])
+		else displayPlots(hdPt, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)
+		}	
+	else{
+		if(length(timePeriods) > 1) warning("Only returning first time point specified.")
+		displayPlots(hdPt[[1]], figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage, bxpt = plots == 2)
+		}
+		
 }

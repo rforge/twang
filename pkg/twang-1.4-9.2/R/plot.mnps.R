@@ -1,5 +1,5 @@
 ##require(twang); data(AOD); AOD$crimjust[198:202] <- NA; mnps.AOD <- mnps(treat ~ illact + crimjust + subprob + subdep + white, data = AOD, estimand = "ATE", stop.method = c("ks.max","es.max"), n.trees = 1000, treatATT = 'community')
-plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, time = NULL, ...){
+plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL, color = TRUE, subset = NULL, treatments = NULL, singlePlot = NULL, multiPage = FALSE, time = NULL, print = TRUE, ...){
 	
 	stop.method <- tmt1 <- tmt2 <- sig <- NULL   
 
@@ -45,7 +45,7 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    
    if(plots == 2 | plots == "boxplot"){
    	
-   	boxplot(x, color = color, stop.method = subset, multiPage = multiPage, singlePlot = singlePlot, time = time, ...)
+   	boxplot(x, color = color, stop.method = subset, multiPage = multiPage, singlePlot = singlePlot, time = time, print = print, ...)
    	
    }
    
@@ -56,11 +56,12 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    for(i in 1:nPlot){
    	if(x$estimand == "ATT") ptNm <- paste("Balance for", x$levExceptTreatATT[i], "versus unweighted", x$treatATT)
    	else ptNm <- paste("Balance for", x$treatLev[i], "against others")
-   	if(!is.null(time)){ptName <- paste(ptNm, " (time ", time, ")", sep = "")}
+   	if(!is.null(time)){ptNm <- paste(ptNm, " (time ", time, ")", sep = "")}
    	ptHld[[i]] <- plot(x$psList[[i]], main = ptNm, plots = plots, noKS = TRUE, color = color, subset=subset)
    	}
    
-	displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)
+   if(print) displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)
+   return(ptHld)
    	
    }
    
@@ -297,7 +298,10 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    	}	
 	
 	if(nPlotsTot == 1) return(pt1)
-	else displayPlots(ptList, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)	
+	else {
+		if(print) displayPlots(ptList, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)	
+		return(ptList)
+	}
 	
 
    		
@@ -316,7 +320,10 @@ plot.mnps <- function(x,plots="optimize", pairwiseMax = TRUE, figureRows = NULL,
    		ptNum <- 1:nPlot[x$levExceptTreatAtt == treatments]
    		return(ptHld[[ptNum]])
    	}
-   	else displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)   
+   	else {
+   		if(print) displayPlots(ptHld, figureRows = figureRows, singlePlot = singlePlot, multiPage = multiPage)
+   		return(ptHld)
+   	}   
    
 
 }
