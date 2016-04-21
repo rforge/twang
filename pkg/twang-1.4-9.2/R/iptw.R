@@ -2,7 +2,7 @@
 iptw <- function(formula, data, timeInvariant = NULL, n.trees = 10000, stop.method = "es.max", cumulative = TRUE, timeIndicators = NULL, ID = NULL, priorTreatment = TRUE,  ...){
 	if(!is.list(formula) & is.null(timeIndicators)) stop("\"formula\" must be a list with length equal to the number of time points (wide data format), or timeIndicators must be specified (long data format).")
 	
-	if(length(stop.method) > 1) stop("Only one stop.method is allowed at one time.")
+	if(length(stop.method) > 1) stop("Only one stop.method is allowed at one time.") 
 	
 	isLong <- !is.list(formula)
 	estimand <- NULL
