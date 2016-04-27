@@ -1,8 +1,15 @@
 useDynLib(twang)
 
 export(ps, mnps, dx.wts, get.weights, bal.table, stop.methods, bal.stat, means.table, iptw, sensitivity, get.weights.unstab, get.weights.num)
-importFrom(graphics, boxplot)
+
 import(gbm, latticeExtra, survey, xtable, lattice)
+
+   importFrom("grDevices", "dev.cur", "dev.new")
+   importFrom("graphics","plot", "boxplot")
+   importFrom("stats", "approx", "as.formula", "cor", "fitted", "formula",
+              "median", "model.extract", "model.frame", "na.pass", "nlm",
+              "optimize", "predict", "quasibinomial", "runif", "terms",
+              "update", "var")
 
 S3method(boxplot, ps)
 S3method(boxplot, mnps)
