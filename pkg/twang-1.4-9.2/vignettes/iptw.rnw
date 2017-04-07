@@ -33,7 +33,7 @@ tutorial for the \texttt{iptw} function in the \texttt{twang} package}
     McCaffrey) and 1R01DA034065 (PIs: Griffin/McCaffrey).} 
 \\RAND Corporation}
 
-%\VignetteIndexEntry{Propensity scores for repeated treatments: A tutorial for the iptw function}
+%\VignetteIndexEntry{Propensity scores for time-varying treatments: A tutorial for the iptw function}
 %\VignetteDepends{gbm,survey,xtable}
 %\VignetteKeywords{propensity score, nonresponse weighting}
 %\VignettePackage{twang}
@@ -48,23 +48,26 @@ tutorial for the \texttt{iptw} function in the \texttt{twang} package}
 
 While standard propensity score methods attempt to answer the question
 of how expected outcomes change if a group of individuals received one
-treatement instead of another, researchers are often
+treatment instead of another, researchers are often
 interested in understanding how {\em sequences} of treatments
 impact outcomes of interest. In this case, time-varying confounders
-may be impacted by prior treatments. Consequently, simply controling
+may be impacted by prior treatments. Consequently, simply controlling
 for the time-varying confounders in standard regression models can
 yield biased results. Instead, it is possible to perform weighted
 regressions that account for time-varying confounders via {\em
   marginal structural models} (MSMs; Robins et al., 2000). In this
-propensity score-based method, observations are weighted by the
+method, observations are weighted by the 
 inverse of the estimated probability of 
-receiving the observed sequence of treatments using nonparametric
-models to estimate the propensity scores (Griffin et al.,
+receiving the observed sequence of treatments the individual actually
+received, referred to as an {\em inverse probability of treatment
+  weight} (IPTW). It has been proposed to use nonparametric
+models to estimate IPTWs (Griffin et al.,
 2014). Accordingly, we refer 
 to the function in \texttt{twang} that performs this weighting as
-\texttt{iptw}, for {\em inverse probability of treatment weighting}. 
+\texttt{iptw}, for inverse probability of treatment weighting. 
 
-The \texttt{iptw} methods and syntax build directly on the \texttt{ps}
+For binary treatments, the \texttt{iptw} methods and syntax build
+directly on the \texttt{ps} 
 functionality; users are encouraged to study that tutorial before
 using \texttt{iptw}. For treatment regimes with more than two
 categories, the \texttt{iptw} methods build on the \texttt{mnps}
@@ -79,40 +82,46 @@ options(width=60)
 @
 
 
-For the sake of easy dissemination, we simulated data to demonstrate
-the functionality. For repeated measures data, one can either imagine
+For the sake of illustration, we simulated data to demonstrate
+the functionality of the \texttt{iptw} command. For time-varying treatment
+data, one can either imagine 
 a ``wide'' dataset, with one row per subject, or a ``long'' dataset
-with a row for each subject/time point combination. Our artificial
-data include time-invariant characteristics \texttt{gender}, and \texttt{age} at time of
+with one row for each subject/time point combination. Our artificial
+data include time-invariant characteristics \texttt{gender}, and
+\texttt{age} at time of 
 study enrollment. Conceptually, we have a substance use index that is
 measured four times: at baseline, after the first treatment period,
 after the second treatment period, and after the third treatment
-period, which concludes the study.  In the ``wide'' version of the
-dataset, we have the \texttt{outcome}, baseline and intermediate
+period, which concludes the study and is the outcome of interest.  In
+the ``wide'' version of the 
+dataset called \texttt{iptwExWide}, we have the \texttt{outcome},
+baseline and intermediate 
 measures, \texttt{use0}, \texttt{use1}, and \texttt{use2}. The
 treatment indicators are, in chronological order, \texttt{tx1},
-\texttt{tx2}, and \texttt{tx3}.  
+\texttt{tx2}, and \texttt{tx3}.  Our goal is to estimate the average
+effect of each additional dose of treatment on substance use measured
+at the end of the study (which is recorded in \texttt{outcome}). 
 
 The ``long'' format data have a somewhat different form, and are
 included in the data object \texttt{iptwExLong}. For the long format,
-the outcomes are split from the covariates, and are available at
-\texttt{outcome}. Similarly, the covariates and treatment
-indicators are available in \texttt{covariates}, which
-includes data elements \texttt{gender}, \texttt{age}, 
-\texttt{use}, and \texttt{tx}; these include the same information as
-the wide version. Additionally, the long version contains elements
-\texttt{ID} (an individual-level identifier) and \texttt{time}, which
-corresponds to the study period.  
+the outcomes are split from the covariates, and are available as
+\texttt{iptwExLong\$outcome}. Similarly, the covariates and treatment
+indicators are available in \texttt{covariates}, which 
+includes data elements \texttt{gender}, \texttt{age},  
+\texttt{use}, and \texttt{tx}; these include the same information as 
+the wide version. Additionally, the long version contains elements 
+\texttt{ID} (an individual-level identifier) and \texttt{time}, which 
+corresponds to the study period.   
 
-One of the benefits of GBM for applied researchers is the automatic
-handling of missing data. For MSMs, however, this does not extend to
-partially observed treatment histories. We assume throughout that
-missingness exists only in the covariates.
+One of the benefits of GBM for applied researchers is the automatic 
+handling of missing data. For MSMs, however, this does not extend to 
+partially observed treatment histories. We assume throughout that 
+missingness exists only in the covariates. 
 
-\subsection{Fitting the model}
+\subsection{Fitting the model} 
 
-To begin, we will work with the ``wide'' version of the model, which
-are available after loadin the twang package:
+To begin, we will work with the ``wide'' version of the data, which
+are available after loading the twang package:
 
 <<>>=
 library(twang)
@@ -184,7 +193,7 @@ bal.table(iptw.Ex, timePeriods = 3)
 @ 
 
 
-Next, we can examine propensity score overlap: 
+Next, we can examine propensity score overlap at each time point: 
 
 \begin{center}
 <<fig=TRUE, echo=TRUE, include = TRUE, height = 7, width = 10.5>>= 
@@ -205,7 +214,8 @@ Next, we can check balance as measured by standardized mean
 differences between the treated and control samples at each of the
 time points by specifying 
 \texttt{plots = 3}. As with other
-TWANG figures, we can specify \texttt{color = FALSE} to produce black and
+TWANG figures, we can specify \texttt{color = FALSE} to produce black
+and white 
 figures. 
 
 \begin{center}
@@ -269,7 +279,7 @@ unstabWt1 <- get.weights.unstab(iptw.Ex)
 @ 
 
 
- We can estimate the treatment effect using these unstablized weights
+ We can estimate the treatment effect using these unstabilized weights
 as follows. the number of periods of treatment for each individual
 <<>>=
 nTx <- with(iptwExWide, tx1 + tx2 + tx3)
@@ -279,10 +289,12 @@ outDatUnstab <- data.frame(outcome = iptwExWide$outcome,
 sv1unstab <- svydesign(~1, weights = ~wt, data = outDatUnstab)
 @ 
 
-We can then calculate the 95\% confidence interval using the
-unstablized weights as
+We can then calculate the point estimate and 95\% confidence interval using the
+unstabilized weights as
 <<>>=
-confint(svyglm(outcome ~ nTx, sv1unstab))
+fitUnstab <- svyglm(outcome ~ nTx, sv1unstab)
+coef(fitUnstab)
+confint(fitUnstab)
 @ 
 
 To calculate the stabilized weights, we additionally calculate a
@@ -300,9 +312,12 @@ outDatStab <- data.frame(outcome = iptwExWide$outcome,
 sv1stab <- svydesign(~1, weights = ~wt, data = outDatStab)
 @ 
 
-As before, we can then estimate the treatment effect
+As before, we can then estimate the treatment effect and associated
+confidence interval
 <<>>=
-confint(svyglm(outcome ~ nTx, sv1stab))
+fitStab <- svyglm(outcome ~ nTx, sv1stab)
+coef(fitStab)
+confint(fitStab)
 @ 
 
 Since these are simulated data, we know that the true treatment effect
