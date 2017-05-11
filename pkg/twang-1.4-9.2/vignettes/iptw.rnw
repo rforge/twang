@@ -78,7 +78,7 @@ models, see e.g., Robins et al.\ (2000) and Cole and Hern\'an (2008).
 \section{An IPTW example}
 
 <<echo=FALSE>>=
-options(width=60)
+options(width=80)
 @
 
 

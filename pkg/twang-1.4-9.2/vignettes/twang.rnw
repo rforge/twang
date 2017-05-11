@@ -102,7 +102,7 @@ SAS macros that implement these methods.
 \section{An ATT example to start}
 
 <<echo=FALSE>>=
-options(width=60)
+options(width=80)
 @
 
 If you have not already done so, install \texttt{twang} by typing
@@ -413,7 +413,7 @@ lalonde.balance
 @
 
 <<echo=FALSE>>=
-options(width=60)
+options(width=80)
 @
 
 \texttt{bal.table()} returns information on the pretreatment
@@ -1093,7 +1093,7 @@ bal.table(ps.lindner)
 @
 
 <<echo=FALSE>>=
-options(width = 60)
+options(width = 80)
 @ 
 
 
