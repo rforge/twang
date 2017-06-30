@@ -8,9 +8,7 @@ Maintainer: Lane Burgette <burgette@rand.org>
 Depends: R (>= 2.10), gbm (>= 1.5-3), survey, xtable, lattice, latticeExtra
 Description: Provides functions for propensity score
         estimating and weighting, nonresponse weighting, and diagnosis
-        of the weights.  This package was originally developed by Drs.
-        Ridgeway, McCaffrey, and Morral. Burgette, Griffin and
-        McCaffrey updated the package during 2011-2016.
+        of the weights. 
 License: GPL (>= 2)
 Packaged: 2013-05-03 15:39:21 UTC; burgette
 NeedsCompilation: yes
