@@ -1,6 +1,6 @@
 Package: twang
 Version: 1.5
-Date: 2017-05-12
+Date: 2017-06-30
 Title: Toolkit for Weighting and Analysis of Nonequivalent Groups
 Author: Greg Ridgeway, Dan McCaffrey, Andrew Morral, Beth Ann Griffin, Lane Burgette
 	<burgette@rand.org>
@@ -10,7 +10,5 @@ Description: Provides functions for propensity score
         estimating and weighting, nonresponse weighting, and diagnosis
         of the weights. 
 License: GPL (>= 2)
-Packaged: 2013-05-03 15:39:21 UTC; burgette
 NeedsCompilation: yes
 Repository: CRAN
-Date/Publication: 2013-05-03 19:06:00
